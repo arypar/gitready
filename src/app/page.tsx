@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import ChatInputForm from '@/components/ChatInputForm';
+import ChatInputForm from '@/components/chatbox-ui';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import CodeWalkthrough from '@/components/CodeWalkthrough';
 import ThreeBackground from '@/components/background/ThreeBackground';

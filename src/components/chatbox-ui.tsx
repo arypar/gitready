@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Send, Search, AlertCircle, Github } from "lucide-react"
+import { Send, AlertCircle, Github } from "lucide-react"
 import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { UrlType } from "@/services/api"
@@ -114,25 +114,25 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
   };
 
   return (
-    <motion.div 
-      className="w-full max-w-xl mx-auto bg-white rounded-full border border-slate-200 shadow-md p-1 px-2 flex flex-col"
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ 
-        duration: 0.6, 
-        ease: [0.22, 1, 0.36, 1],
-        delay: 0.2
-      }}
-    >
-      <div className="relative w-full flex items-center">
-        <div className="absolute left-3 text-slate-400">
+    <div className="w-full max-w-xl mx-auto">
+      <motion.div 
+        className="relative bg-white rounded-full border border-slate-200 shadow-md"
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ 
+          duration: 0.6, 
+          ease: [0.22, 1, 0.36, 1],
+          delay: 0.2
+        }}
+      >
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
           <Github className="w-5 h-5" />
         </div>
         <Input
           value={input}
           onChange={onInputChange}
           placeholder={placeholders[placeholderIndex]}
-          className="pl-10 pr-12 py-6 text-base bg-transparent border-none placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full"
+          className="pl-10 pr-12 py-6 text-base text-black bg-transparent border-none placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full"
           style={{
             opacity: isPlaceholderVisible ? 1 : 0,
             transition: "opacity 300ms ease-in-out",
@@ -140,7 +140,7 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           disabled={isLoading}
         />
-        <div className="absolute right-2">
+        <div className="absolute right-2 top-1/2 -translate-y-1/2">
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -160,12 +160,12 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
             </Button>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
       
       <AnimatePresence>
         {errorMessage && (
           <motion.div 
-            className="flex items-center px-3 py-2 mt-1 bg-amber-50 text-amber-700 text-xs rounded-lg"
+            className="flex items-center px-3 py-2 mt-2 bg-amber-50 text-amber-700 text-xs rounded-lg"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -178,15 +178,15 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
       </AnimatePresence>
       
       <motion.div 
-        className="flex items-center px-3 py-1"
+        className="text-center mt-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.3 }}
       >
-        <div className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           {isLoading ? 'Analysis in progress...' : 'Enter a GitHub repository URL or documentation link'}
-        </div>
+        </p>
       </motion.div>
-    </motion.div>
+    </div>
   )
 } 
