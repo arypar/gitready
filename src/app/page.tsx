@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import UrlForm from '@/components/UrlForm';
+import ChatInputForm from '@/components/chatbox-ui';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import CodeWalkthrough from '@/components/CodeWalkthrough';
-import ThreeBackground from '@/components/background/ThreeBackground';
 import { analyzeRepository, analyzeDocumentation, CodeWalkthroughSection, UrlType } from '@/services/api';
 import { Switch } from '@/components/ui/switch';
+import { CustomSwitch } from '@/components/ui/custom-switch';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Demo data for testing purposes
 const DEMO_WALKTHROUGH: CodeWalkthroughSection[] = [
@@ -82,11 +83,39 @@ export default function Home() {
   const [walkthrough, setWalkthrough] = useState<CodeWalkthroughSection[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [hasSentFirstQuery, setHasSentFirstQuery] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+
+  // When transitioning state or walkthrough changes, manage visibility of content
+  useEffect(() => {
+    if (isTransitioning) {
+      setShowContent(false);
+    } else if (hasSentFirstQuery && walkthrough.length > 0) {
+      // Delay showing content until the transition animation completes
+      const timer = setTimeout(() => {
+        setShowContent(true);
+      }, 200);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning, hasSentFirstQuery, walkthrough]);
 
   const handleSubmit = async (url: string, type: UrlType) => {
     try {
       // If we're already loading, don't submit again
       if (isLoading) return;
+      
+      if (!hasSentFirstQuery) {
+        // Start transition animation
+        setIsTransitioning(true);
+        
+        // Wait for animation to complete before changing the state
+        setTimeout(() => {
+          setHasSentFirstQuery(true);
+          setIsTransitioning(false);
+        }, 600);
+      }
       
       setIsLoading(true);
       setError(null);
@@ -151,65 +180,171 @@ export default function Home() {
     }
   };
 
+  // Logo elements with emoji
+  const logoTitle = (
+    <div className="flex items-center gap-2">
+      <div>
+        <span className="text-black font-extrabold tracking-tight">Git</span>
+        <span className="text-purple-600 font-extrabold tracking-tight">Freaky</span>
+      </div>
+      <motion.div 
+        whileHover={{ rotate: 10 }}
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      >
+        <span className="text-4xl">🐈‍⬛</span>
+      </motion.div>
+    </div>
+  );
+
   return (
-    <>
-      <ThreeBackground />
+    <div className="flex flex-col min-h-screen bg-purple-50 font-sans overflow-hidden">
+      {/* Background overlay for React Flow */}
+      <div className="fixed inset-0 z-[-1] bg-gradient-to-b from-[#0D1117] to-[#161B22] opacity-90"></div>
+      {/* Demo Mode Toggle - Always visible at the top */}
+      <div className="absolute top-2 right-4 z-50 flex items-center space-x-2">
+        <span className="text-xs font-medium text-slate-700">Demo Mode</span>
+        <CustomSwitch 
+          checked={isDemoMode} 
+          onCheckedChange={setIsDemoMode} 
+        />
+      </div>
       
-      <main className="relative min-h-screen py-16 px-4 sm:px-6 lg:px-8 z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col items-center justify-center min-h-[20vh] mb-16">
-            <h1 className="text-4xl md:text-5xl font-semibold text-[#E6EDF3] tracking-tight leading-tight text-center">
-              Onboard.me
-            </h1>
-            <p className="mt-4 text-base md:text-lg text-[#8B949E] max-w-2xl text-center font-normal">
-              Quickly understand any codebase with AI-powered analysis and documentation
-            </p>
-          </div>
-          
-          {/* Demo Mode Toggle */}
-          <div className="absolute top-6 right-6 flex items-center space-x-2">
-            <span className="text-xs text-[#8B949E]">Demo Mode</span>
-            <Switch 
-              checked={isDemoMode} 
-              onCheckedChange={setIsDemoMode} 
-              className="data-[state=checked]:bg-[#388BFD]" 
-            />
-          </div>
-          
-          <div className="relative max-w-2xl mx-auto mb-20">
-            {/* Subtle glow behind the input */}
-            <div className="absolute -inset-10 bg-[#388BFD]/5 blur-3xl rounded-full opacity-30 -z-10"></div>
-            <UrlForm onSubmit={handleSubmit} isLoading={isLoading} />
+      <AnimatePresence>
+        {/* Initial centered content - Animates out on first message */}
+        {!hasSentFirstQuery && !isTransitioning && (
+          <motion.div 
+            className="flex flex-col justify-center items-center absolute inset-0 z-10 bg-purple-50"
+            initial={{ opacity: 1 }}
+            exit={{ 
+              opacity: 0,
+              transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+            }}
+          >
+            <motion.div 
+              className="mb-6 mt-[-80px]"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <motion.div 
+                className="flex items-center justify-center gap-2"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                layoutId="app-logo"
+              >
+                <h1 className="text-4xl font-extrabold tracking-tight">{logoTitle}</h1>
+              </motion.div>
+              
+              <motion.p 
+                className="text-xl text-slate-600 text-center mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                Understand any codebase with AI
+              </motion.p>
+            </motion.div>
+            
+            {/* Chat input for initial screen */}
+            <div className="w-full max-w-xl px-4">
+              <motion.div layoutId="chat-input">
+                <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
+              </motion.div>
+            </div>
             
             {isDemoMode && (
               <div className="mt-2 text-center">
-                <span className="text-xs px-2 py-1 bg-[#388BFD]/10 text-[#388BFD] rounded-full">
+                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-600 rounded-full">
                   Demo Mode Active
                 </span>
               </div>
             )}
-          </div>
-          
-          {error && (
-            <div className="max-w-2xl mx-auto mt-8 p-4 bg-[#F85149]/10 text-[#F85149] rounded-md border border-[#F85149]/30">
-              <p className="font-medium">Error</p>
-              <p className="text-sm mt-1">{error}</p>
-            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Fixed form at the top - Animates in after first query */}
+      <motion.div 
+        className="sticky top-0 z-20 bg-purple-50 pt-6 pb-3 px-4 md:pt-8 mt-2 md:mt-0"
+        initial={!hasSentFirstQuery && !isTransitioning ? { opacity: 0 } : { opacity: 1 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="max-w-xl mx-auto">
+          {/* Small logo - only visible after first query */}
+          {(hasSentFirstQuery || isTransitioning) && (
+            <motion.div 
+              className="flex items-center justify-center gap-1 mb-2"
+              layoutId="app-logo"
+            >
+              <h3 className="text-lg font-bold tracking-tight">{logoTitle}</h3>
+            </motion.div>
           )}
           
-          {isLoading && (
-            <div className="mt-16">
-              <LoadingIndicator />
-            </div>
-          )}
-          
-          {!isLoading && walkthrough.length > 0 && (
-            <div className="mt-16">
-              <CodeWalkthrough sections={walkthrough} />
-            </div>
+          {/* Chat input for transitioned state */}
+          {(hasSentFirstQuery || isTransitioning) && (
+            <motion.div layoutId="chat-input">
+              <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
+            </motion.div>
           )}
         </div>
-      </main>
-    </>
+      </motion.div>
+      
+      {/* Main Content Area */}
+      <div className="flex-1 p-4 pb-28 pt-4">
+        {/* Loading and Error Messages - Keep centered */}
+        <div className="max-w-xl mx-auto flex flex-col gap-4">
+          {/* Loading Indicator */}
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-8"
+              >
+                <LoadingIndicator />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-8 p-4 bg-red-50 text-red-500 rounded-3xl border border-red-200"
+              >
+                <p className="font-medium">Error</p>
+                <p className="text-sm mt-1">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+          
+        {/* Walkthrough Content - Full width */}
+        <AnimatePresence>
+          {!isLoading && walkthrough.length > 0 && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: showContent ? 1 : 0,
+                transition: {
+                  opacity: { duration: 0.3, delay: 0.05 }
+                }
+              }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full mt-8 px-4 md:px-6 lg:px-8"
+            >
+              <CodeWalkthrough sections={walkthrough} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
