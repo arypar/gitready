@@ -277,6 +277,7 @@ export default function Home() {
       
       {/* Main Content Area */}
       <div className="flex-1 p-4 pb-28 pt-4">
+        {/* Loading and Error Messages - Keep centered */}
         <div className="max-w-xl mx-auto flex flex-col gap-4">
           {/* Loading Indicator */}
           <AnimatePresence>
@@ -306,29 +307,27 @@ export default function Home() {
               </motion.div>
             )}
           </AnimatePresence>
-          
-          {/* Walkthrough Content */}
-          <AnimatePresence>
-            {!isLoading && walkthrough.length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ 
-                  opacity: showContent ? 1 : 0,
-                  transition: {
-                    opacity: { duration: 0.3, delay: 0.05 }
-                  }
-                }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full mt-8"
-              >
-                <div className="w-full">
-                  <CodeWalkthrough sections={walkthrough} />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
+          
+        {/* Walkthrough Content - Full width */}
+        <AnimatePresence>
+          {!isLoading && walkthrough.length > 0 && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: showContent ? 1 : 0,
+                transition: {
+                  opacity: { duration: 0.3, delay: 0.05 }
+                }
+              }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full mt-8 px-4 md:px-6 lg:px-8"
+            >
+              <CodeWalkthrough sections={walkthrough} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

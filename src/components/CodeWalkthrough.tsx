@@ -42,6 +42,11 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   const [hoveredFile, setHoveredFile] = useState<number | null>(null);
   const deckRef = useRef<HTMLDivElement>(null);
 
+  // Toggle selection - clicking same file will deselect it
+  const toggleFileSelection = (index: number) => {
+    setSelectedFile(prev => prev === index ? null : index);
+  };
+
   // Function to add line numbers and highlight annotated lines
   const prepareCodeLines = (code: string, annotations?: { line: number; comment: string }[]) => {
     const lines = code.split('\n');
@@ -154,13 +159,13 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             No code files available
           </div>
         ) : (
-          <div className={`w-full flex items-start transition-all duration-500 ease-in-out ${selectedFile !== null ? 'justify-between' : 'justify-center'}`}>
+          <div className={`w-full flex items-start transition-all duration-500 ease-in-out ${selectedFile !== null ? 'justify-between px-4' : 'justify-center'}`}>
             {/* Files grid - shifts left and becomes narrower when a file is selected */}
             <motion.div 
               className="relative"
               animate={{ 
                 width: selectedFile !== null ? '40%' : '100%',
-                maxWidth: selectedFile !== null ? '500px' : '1200px',
+                maxWidth: selectedFile !== null ? '600px' : '1400px',
               }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
@@ -182,19 +187,19 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                     <motion.div 
                       key={`file-${index}`}
                       className="cursor-pointer"
-                      style={{ width: selectedFile !== null ? '160px' : '240px' }}
+                      style={{ width: selectedFile !== null ? '180px' : '260px' }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ 
                         opacity: 1, 
                         y: 0,
                         scale: isSelected ? 1.05 : isHovered ? 1.02 : 1,
-                        width: selectedFile !== null ? '160px' : '240px',
+                        width: selectedFile !== null ? '180px' : '260px',
                         boxShadow: isSelected || isHovered ? '0 8px 20px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.2)'
                       }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                       onHoverStart={() => !isSelected && setHoveredFile(index)}
                       onHoverEnd={() => setHoveredFile(null)}
-                      onClick={() => setSelectedFile(index)}
+                      onClick={() => toggleFileSelection(index)}
                     >
                       <div className={`rounded-md border-2 overflow-hidden ${
                         isSelected ? 'bg-[#1C2F45]/90' : 'bg-[#161B22]/90'
@@ -236,10 +241,10 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
               {selectedFile !== null && (
                 <motion.div
                   initial={{ opacity: 0, x: 100, width: 0 }}
-                  animate={{ opacity: 1, x: 0, width: '55%' }}
+                  animate={{ opacity: 1, x: 0, width: '58%' }}
                   exit={{ opacity: 0, x: 100, width: 0 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative max-w-[800px]"
+                  className="relative max-w-[1000px]"
                 >
                   <Card className="w-full border border-[#30363D] bg-[#0D1117]/80 backdrop-blur-md rounded-xl overflow-hidden shadow-2xl">
                     <div className="absolute top-3 right-3 z-10">
