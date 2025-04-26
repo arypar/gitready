@@ -55,21 +55,48 @@ function FileNode({ data, selected }: NodeProps) {
   const getFileIcon = (ext: string) => {
     switch (ext) {
       case 'js':
-        return '📄 JS';
+        return '📜';
       case 'jsx':
-        return '📄 JSX';
+        return '⚛️';
       case 'ts':
-        return '📄 TS';
+        return '📘';
       case 'tsx':
-        return '📄 TSX';
+        return '⚛️';
       case 'json':
-        return '📄 JSON';
+        return '🔧';
       case 'md':
-        return '📄 MD';
+        return '📝';
       case 'css':
-        return '📄 CSS';
+        return '🎨';
       case 'html':
-        return '📄 HTML';
+        return '🌐';
+      case 'py':
+        return '🐍';
+      case 'rb':
+        return '💎';
+      case 'php':
+        return '🐘';
+      case 'java':
+        return '☕';
+      case 'go':
+        return '🐹';
+      case 'rust':
+      case 'rs':
+        return '🦀';
+      case 'c':
+      case 'cpp':
+      case 'h':
+        return '⚙️';
+      case 'sh':
+        return '🐚';
+      case 'yml':
+      case 'yaml':
+        return '📋';
+      case 'svg':
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+        return '🖼️';
       default:
         return '📄';
     }
@@ -88,14 +115,14 @@ function FileNode({ data, selected }: NodeProps) {
       <Handle type="target" position={Position.Top} style={{ background: '#888' }} />
       <div className="p-3 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="mr-2 text-lg">{fileIcon}</span>
+          <span className="mr-2 text-xl">{fileIcon}</span>
           <div className="flex flex-col">
             <span className="font-medium text-gray-800">{shortName}</span>
             <span className="text-xs text-gray-500">{data.type}</span>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-xs text-gray-400 uppercase">{extension}</span>
+          <span className="text-xs text-gray-400 uppercase font-medium">{extension}</span>
           <span className="text-xs text-gray-500">{data.lines} lines</span>
         </div>
       </div>
@@ -201,21 +228,48 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   const getFileIcon = (ext: string) => {
     switch (ext) {
       case 'js':
-        return '📄 JS';
+        return '📜';
       case 'jsx':
-        return '📄 JSX';
+        return '⚛️';
       case 'ts':
-        return '📄 TS';
+        return '📘';
       case 'tsx':
-        return '📄 TSX';
+        return '⚛️';
       case 'json':
-        return '📄 JSON';
+        return '🔧';
       case 'md':
-        return '📄 MD';
+        return '📝';
       case 'css':
-        return '📄 CSS';
+        return '🎨';
       case 'html':
-        return '📄 HTML';
+        return '🌐';
+      case 'py':
+        return '🐍';
+      case 'rb':
+        return '💎';
+      case 'php':
+        return '🐘';
+      case 'java':
+        return '☕';
+      case 'go':
+        return '🐹';
+      case 'rust':
+      case 'rs':
+        return '🦀';
+      case 'c':
+      case 'cpp':
+      case 'h':
+        return '⚙️';
+      case 'sh':
+        return '🐚';
+      case 'yml':
+      case 'yaml':
+        return '📋';
+      case 'svg':
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+        return '🖼️';
       default:
         return '📄';
     }
