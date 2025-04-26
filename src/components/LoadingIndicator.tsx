@@ -13,9 +13,9 @@ export default function LoadingIndicator() {
       <div className="p-6 flex flex-col items-center justify-center space-y-6">
         {/* Loading dots */}
         <div className="flex justify-center items-center space-x-2 my-4">
-          <span className="h-3 w-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-          <span className="h-3 w-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-          <span className="h-3 w-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+          <span className="h-3 w-3 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+          <span className="h-3 w-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+          <span className="h-3 w-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
         </div>
         
         {/* Text */}
@@ -30,7 +30,7 @@ export default function LoadingIndicator() {
         
         {/* Progress bar */}
         <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-          <div className="h-full bg-blue-500/70 rounded-full animate-progress"></div>
+          <div className="h-full bg-purple-600/70 rounded-full animate-progress"></div>
         </div>
       </div>
     </motion.div>

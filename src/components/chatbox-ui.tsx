@@ -125,7 +125,7 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
           delay: 0.2
         }}
       >
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500">
           <Github className="w-5 h-5" />
         </div>
         <Input
@@ -148,7 +148,7 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
             <Button
               type="button"
               size="icon"
-              className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm transition-colors duration-200 rounded-full w-10 h-10"
+              className="bg-purple-600 hover:bg-purple-700 text-white shadow-sm transition-colors duration-200 rounded-full w-10 h-10"
               disabled={isLoading || !input}
               onClick={handleSend}
             >

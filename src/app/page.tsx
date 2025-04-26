@@ -165,21 +165,29 @@ export default function Home() {
     }
   };
 
-  // Logo elements
+  // Logo elements with emoji
   const logoTitle = (
-    <>
-      <span className="text-slate-800 dark:text-slate-200 font-extrabold tracking-tight">Onboard</span>
-      <span className="text-blue-600 font-extrabold tracking-tight">.me</span>
-    </>
+    <div className="flex items-center gap-2">
+      <div>
+        <span className="text-black font-extrabold tracking-tight">Git</span>
+        <span className="text-purple-600 font-extrabold tracking-tight">Freaky</span>
+      </div>
+      <motion.div 
+        whileHover={{ scale: 1.2, rotate: 10 }}
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      >
+        <span role="img" aria-label="octopus" className="text-3xl">🐙</span>
+      </motion.div>
+    </div>
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-blue-50 font-sans overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-purple-50 font-sans overflow-hidden">
       <AnimatePresence>
         {/* Initial centered content - Animates out on first message */}
         {!hasSentFirstQuery && !isTransitioning && (
           <motion.div 
-            className="flex flex-col justify-center items-center absolute inset-0 z-10 bg-blue-50"
+            className="flex flex-col justify-center items-center absolute inset-0 z-10 bg-purple-50"
             initial={{ opacity: 1 }}
             exit={{ 
               opacity: 0,
@@ -230,13 +238,13 @@ export default function Home() {
               <Switch 
                 checked={isDemoMode} 
                 onCheckedChange={setIsDemoMode} 
-                className="data-[state=checked]:bg-blue-500" 
+                className="data-[state=checked]:bg-purple-600" 
               />
             </motion.div>
             
             {isDemoMode && (
               <div className="mt-2 text-center">
-                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-600 rounded-full">
                   Demo Mode Active
                 </span>
               </div>
@@ -247,7 +255,7 @@ export default function Home() {
       
       {/* Fixed form at the top - Animates in after first query */}
       <motion.div 
-        className="sticky top-0 z-20 bg-blue-50 pt-4 pb-2 px-4 md:pt-6 mt-2 md:mt-0 shadow-sm"
+        className="sticky top-0 z-20 bg-purple-50 pt-4 pb-2 px-4 md:pt-6 mt-2 md:mt-0 shadow-sm"
         initial={!hasSentFirstQuery && !isTransitioning ? { opacity: 0 } : { opacity: 1 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -278,7 +286,7 @@ export default function Home() {
                 <Switch 
                   checked={isDemoMode} 
                   onCheckedChange={setIsDemoMode} 
-                  className="data-[state=checked]:bg-blue-500" 
+                  className="data-[state=checked]:bg-purple-600" 
                 />
               </div>
             </div>
