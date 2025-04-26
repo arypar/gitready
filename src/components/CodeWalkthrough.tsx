@@ -348,7 +348,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
     <div className="w-full">
       <div className={`w-full h-[500px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* React Flow visualization */}
-        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative rounded-lg overflow-hidden border border-gray-200`}>
+        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative`}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -359,13 +359,10 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             connectionLineType={ConnectionLineType.Straight}
             fitView
             proOptions={{ hideAttribution: true }}
-            style={{ background: 'radial-gradient(circle, rgba(248,246,255,1) 0%, rgba(238,232,255,1) 100%)' }}
+            style={{ background: 'transparent' }}
           >
             <Background color="#aaa" gap={12} size={1} />
             <Controls showInteractive={false} className="bg-white border-gray-200 text-gray-700" />
-            <Panel position="top-center" className="bg-white/50 text-gray-600 text-xs px-2 py-1 rounded border border-gray-200">
-              {selectedFile === null ? 'Simplified Code Structure Diagram' : 'Click on a file to view its contents'}
-            </Panel>
           </ReactFlow>
         </div>
         
