@@ -173,10 +173,10 @@ export default function Home() {
         <span className="text-purple-600 font-extrabold tracking-tight">Freaky</span>
       </div>
       <motion.div 
-        whileHover={{ scale: 1.2, rotate: 10 }}
+        whileHover={{ rotate: 10 }}
         transition={{ type: "spring", stiffness: 400, damping: 10 }}
       >
-        <span role="img" aria-label="octopus" className="text-3xl">🐙</span>
+        <span className="text-4xl">🐈‍⬛</span>
       </motion.div>
     </div>
   );
