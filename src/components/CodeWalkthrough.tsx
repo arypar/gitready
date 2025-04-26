@@ -133,25 +133,25 @@ function FileNode({ data, selected }: NodeProps) {
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md border transition-all duration-200 ${selected ? 'border-pink-500 scale-105' : 'border-gray-200 hover:border-blue-300'}`}
+      className={`bg-[#161B22] rounded-lg shadow-md border transition-all duration-200 ${selected ? 'border-blue-600 scale-105 ring-2 ring-blue-900' : 'border-[#30363D] hover:border-blue-700'}`}
       onClick={data.onClick}
-      style={{ width: 'auto', minWidth: '220px' }} // Adjust width styling
+      style={{ width: 'auto', minWidth: '220px' }}
     >
-      <Handle type="target" position={Position.Top} style={{ background: '#888' }} />
+      <Handle type="target" position={Position.Top} style={{ background: '#666' }} />
       
       <div className="p-3 flex items-center justify-between">
         <div className="flex items-center">
           <span className="mr-2 text-xl">{fileIcon}</span>
           <div className="flex flex-col">
-            <span className="font-medium text-gray-800">{shortName}</span>
-            <span className="text-xs text-gray-500">{nodeType}</span>
+            <span className="font-medium text-[#E6EDF3]">{shortName}</span>
+            <span className="text-xs text-[#8B949E]">{nodeType}</span>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-xs text-gray-400 uppercase font-medium">{extension}</span>
-          <div className="mt-1 text-xs inline-flex items-center bg-gray-100 px-2 py-0.5 rounded-full text-gray-600">
-            <span className="font-medium">{data.lines}</span>
-            <span className="ml-1 text-gray-500">lines</span>
+          <span className="text-xs text-[#6E7681] uppercase font-medium">{extension}</span>
+          <div className="mt-1 text-xs inline-flex items-center bg-[#21262D] px-2 py-0.5 rounded-full text-[#8B949E]">
+            <span className="font-medium text-[#C9D1D9]">{data.lines}</span>
+            <span className="ml-1">lines</span>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ function FileNode({ data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Bottom}
-        style={{ background: '#888' }}
+        style={{ background: '#666' }}
       />
     </div>
   );
@@ -194,7 +194,7 @@ function CodeRenderer({
   );
 
   return (
-    <div className="bg-white overflow-auto max-h-[600px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+    <div className="bg-[#0D1117] overflow-auto max-h-[600px] scrollbar-thin scrollbar-thumb-[#30363D] scrollbar-track-[#161B22]">
       <table className="min-w-full border-collapse">
         <tbody>
           {lines.map((ln, idx) => {
@@ -204,32 +204,31 @@ function CodeRenderer({
               <tr
                 key={idx}
                 className={
-                  ann ? 'bg-blue-50 backdrop-blur-sm' : 'hover:bg-gray-50'
+                  ann ? 'bg-[#1C2F45]/70' : 'hover:bg-[#161B22]/50'
                 }
               >
-                <td className="text-right py-0 pr-4 pl-4 border-r border-gray-300 text-gray-500 select-none w-[1%] font-mono text-xs">
+                <td className="text-right py-0 pr-4 pl-4 border-r border-[#30363D] text-[#6E7681] select-none w-[1%] font-mono text-xs">
                   {n}
                 </td>
                 <td className="py-0.5 px-4 font-mono text-sm whitespace-pre">
                   <SyntaxHighlighter
                     language={language}
-                    style={vs}
+                    style={vscDarkPlus}
                     customStyle={{
                       margin: 0,
                       padding: 0,
                       background: 'transparent',
                       fontSize: 'inherit',
                       lineHeight: 1.5,
-                      color: '#1a202c'
                     }}
                     wrapLines
                   >
                     {ln}
                   </SyntaxHighlighter>
                 </td>
-                <td className="w-[30%] pl-4 py-0 text-xs text-gray-800">
+                <td className="w-[30%] pl-4 py-0 text-xs text-[#58A6FF]">
                   {ann && (
-                    <div className="bg-blue-50 p-2 rounded border-l-2 border-blue-500 shadow-sm">
+                    <div className="bg-[#1F2937]/80 p-2 rounded border-l-2 border-[#388BFD] shadow-sm">
                       {ann}
                     </div>
                   )}
@@ -379,11 +378,11 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
 
   /* ---- 4. Render ------------------------------------------------ */
   return (
-    <div className="w-full">
+    <div className="w-full bg-[#0D1117] text-[#C9D1D9] rounded-lg p-4">
       {/* Container for Flow and Expanded View */}
       <div className={`w-full h-[800px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* Flow diagram container */}
-        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative border rounded-lg shadow-md bg-gray-50 overflow-hidden`}>
+        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative border border-[#30363D] rounded-lg shadow-md bg-[#161B22] overflow-hidden`}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -392,15 +391,12 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             connectionLineType={ConnectionLineType.Straight}
-            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
-            minZoom={0.2}
-            maxZoom={2}
             fitView
             proOptions={{ hideAttribution: true }}
             style={{ background: 'transparent' }}
           >
-            <Background color="#ddd" gap={12} size={1} />
-            <Controls showInteractive={false} className="bg-white" />
+            <Background color="#444" gap={16} size={1} />
+            <Controls showInteractive={false} className="bg-[#21262D] border-[#30363D] text-[#C9D1D9]" />
           </ReactFlow>
         </div>
 
@@ -414,9 +410,9 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="h-full overflow-auto"
             >
-              <Card className="w-full h-full border border-gray-200 bg-white rounded-lg overflow-hidden shadow-md">
+              <Card className="w-full h-full border border-[#30363D] bg-[#161B22] rounded-lg overflow-hidden shadow-md">
                 {/* Header */}
-                <div className="p-5 border-b border-gray-200 bg-white flex items-center justify-between">
+                <div className="p-5 border-b border-[#30363D] bg-[#21262D] flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="mr-2 text-lg">
                       {getFileIcon(
@@ -424,10 +420,10 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
                       )}
                     </span>
                     <div className="flex flex-col">
-                      <h2 className="text-lg font-medium text-gray-800 font-mono">
+                      <h2 className="text-lg font-medium text-[#E6EDF3] font-mono">
                         {allCodeFiles[selectedFile].filename.split('/').pop() || ''}
                       </h2>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-[#8B949E]">
                         From section: {allCodeFiles[selectedFile].sectionTitle}
                       </p>
                     </div>
@@ -435,39 +431,39 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
                   
                   <button 
                     onClick={() => setSelectedFile(null)}
-                    className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                    className="p-1.5 rounded-full text-[#8B949E] hover:bg-[#30363D] hover:text-[#C9D1D9]"
                   >
                     <X size={18} />
                   </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-5 bg-white overflow-auto" style={{ height: 'calc(100% - 73px)' }}> {/* Adjust height calculation based on header */}
+                <div className="p-5 bg-[#161B22] overflow-auto" style={{ height: 'calc(100% - 73px)' }}>
                   {allCodeFiles[selectedFile].sectionContent && (
-                    <div className="prose max-w-none mb-6 text-black prose-p:text-black prose-headings:text-black prose-a:text-blue-600 prose-code:text-blue-700 prose-strong:text-black text-sm">
+                    <div className="prose prose-invert max-w-none mb-6 text-[#C9D1D9] prose-p:text-[#C9D1D9] prose-headings:text-[#E6EDF3] prose-a:text-[#58A6FF] prose-code:text-[#79C0FF] prose-strong:text-[#E6EDF3] text-sm">
                       <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
                     </div>
                   )}
                   
                   {/* Code with annotations */}
                   <div className="relative">
-                    <div className="flex justify-between items-center bg-gray-100 text-xs px-3 py-2 rounded-t-md border-t border-x border-gray-300">
+                    <div className="flex justify-between items-center bg-[#21262D] text-xs px-3 py-2 rounded-t-md border-t border-x border-[#30363D]">
                       <div className="flex items-center">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-1.5"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 mr-1.5"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-1.5"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#F85149] mr-1.5"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#DAAA3F] mr-1.5"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#3FB950] mr-1.5"></div>
                         <HoverCard>
                           <HoverCardTrigger asChild>
-                            <span className="font-mono text-xs ml-2 cursor-help text-gray-700">
+                            <span className="font-mono text-xs ml-2 cursor-help text-[#8B949E]">
                               {allCodeFiles[selectedFile].filename}
                             </span>
                           </HoverCardTrigger>
-                          <HoverCardContent className="w-72 bg-white border border-gray-300 text-gray-800">
+                          <HoverCardContent className="w-72 bg-[#21262D] border border-[#30363D] text-[#C9D1D9]">
                             <div className="space-y-1.5">
-                              <h4 className="text-sm font-medium text-blue-700">
+                              <h4 className="text-sm font-medium text-[#58A6FF]">
                                 Language: {allCodeFiles[selectedFile].language}
                               </h4>
-                              <p className="text-xs text-gray-700">
+                              <p className="text-xs text-[#8B949E]">
                                 {allCodeFiles[selectedFile].annotations?.length ? 
                                   `${allCodeFiles[selectedFile].annotations.length} annotations in this file` : 
                                   'No annotations in this file'}
@@ -478,7 +474,7 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
                       </div>
                     </div>
                     
-                    <div className="border border-t-0 border-gray-300 rounded-b-md overflow-hidden">
+                    <div className="border border-t-0 border-[#30363D] rounded-b-md overflow-hidden">
                       <CodeRenderer
                         code={allCodeFiles[selectedFile].content}
                         language={allCodeFiles[selectedFile].language}
