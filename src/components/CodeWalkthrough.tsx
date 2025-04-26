@@ -16,7 +16,9 @@ import ReactFlow, {
   useEdgesState,
   ConnectionLineType,
   Background,
-  Controls
+  Controls,
+  useReactFlow,
+  ReactFlowProvider
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card } from '@/components/ui/card';
@@ -247,7 +249,7 @@ function CodeRenderer({
 /* --------------------------- Main comp ---------------------------- */
 /* ------------------------------------------------------------------ */
 
-export default function CodeWalkthrough({ sections, repositorySummary }: CodeWalkthroughProps) {
+function CodeWalkthroughFlow({ sections, repositorySummary }: CodeWalkthroughProps) {
   /* ---- 1. Flatten every code file across all input sections ---- */
   const allCodeFiles = useMemo(
     () =>
@@ -372,13 +374,23 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
     }
 
     return { nodes, edges };
-  }, [allCodeFiles, toggleFile]);
+  }, [allCodeFiles]);
 
   const nodeTypes = useMemo(() => ({ fileNode: FileNode }), []);
   const edgeTypes = useMemo(() => ({ flowEdge: FlowEdge }), []);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const reactFlowInstance = useReactFlow();
+
+  // Effect to fit view when selection changes
+  useEffect(() => {
+    // Delay fitView call slightly after the transition duration (500ms)
+    const timer = setTimeout(() => {
+      reactFlowInstance.fitView({ padding: 0.1, duration: 300 });
+    }, 550); 
+    return () => clearTimeout(timer);
+  }, [selectedFile, reactFlowInstance]);
 
   /* ---- 4. Render ------------------------------------------------ */
   return (
@@ -399,7 +411,7 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
       {/* Container for Flow and Expanded View */}
       <div className={`w-full transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between h-[800px]' : 'block h-[600px]'}`}>
         {/* Flow diagram container */}
-        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative border border-[#30363D] rounded-lg shadow-md bg-[#161B22] overflow-hidden`}>
+        <div className={`${selectedFile !== null ? 'w-1/2 pr-2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative border border-[#30363D] rounded-lg shadow-md bg-[#161B22] overflow-hidden`}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -421,11 +433,11 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
         <AnimatePresence>
           {selectedFile !== null && allCodeFiles[selectedFile] && (
             <motion.div
-              initial={{ opacity: 0, x: 100, width: 0 }}
-              animate={{ opacity: 1, x: 0, width: '48%' }}
-              exit={{ opacity: 0, x: 100, width: 0 }}
+              initial={{ opacity: 0, x: 50, width: 0 }}
+              animate={{ opacity: 1, x: 0, width: '49%' }}
+              exit={{ opacity: 0, x: 50, width: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="h-full overflow-auto"
+              className="h-full overflow-auto pl-2"
             >
               <Card className="w-full h-full border border-[#30363D] bg-[#161B22] rounded-lg overflow-hidden shadow-md">
                 {/* Header */}
@@ -506,5 +518,14 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+// Wrap the component with ReactFlowProvider
+export default function CodeWalkthroughWrapper(props: CodeWalkthroughProps) {
+  return (
+    <ReactFlowProvider>
+      <CodeWalkthroughFlow {...props} />
+    </ReactFlowProvider>
   );
 }
