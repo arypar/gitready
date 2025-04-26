@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Card } from '@/components/ui/card';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
 import ReactFlow, {
   Node,
   Edge,
@@ -25,7 +24,6 @@ import ReactFlow, {
   Panel,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { nanoid } from 'nanoid';
 
 // Enhanced code type with line-specific annotations
 interface CodeWithAnnotations {
@@ -46,87 +44,62 @@ interface CodeWalkthroughProps {
   }[];
 }
 
-// Custom node to display file info
-function FileNode({ data, selected }: NodeProps) {
-  const { title, filename, language, color, content, onClick } = data;
-  
-  // Extract file extension from filename
-  const getFileExtension = (name: string) => {
-    const parts = name.split('.');
-    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
-  };
-  
-  const extension = getFileExtension(filename);
-  
+// Input node component
+function InputNode({ data }: NodeProps) {
   return (
-    <div 
-      className={`w-64 rounded-md border-2 overflow-hidden transition-all duration-300 shadow-lg ${
-        selected ? 'scale-105 bg-[#1C2F45]/95' : 'bg-[#161B22]/95'
-      }`}
-      style={{ borderColor: color, backdropFilter: 'blur(4px)' }}
-      onClick={onClick}
-    >
-      <Handle type="target" position={Position.Left} className="w-3 h-3 bg-transparent" />
-      
-      {/* Card header */}
-      <div className="px-3 py-2 border-b border-[#30363D] flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: color }}></div>
-          <span className="font-mono text-xs text-[#E6EDF3] truncate max-w-[140px]">
-            {filename.split('/').pop()}
-          </span>
-        </div>
-        <span className="text-[10px] text-[#8B949E]">{extension}</span>
+    <div className="bg-white p-4 rounded-lg shadow-md w-64 border border-gray-200">
+      <div className="text-gray-700 font-medium mb-2">{data.label}</div>
+      <div className="p-2">
+        {data.type === 'color' && (
+          <div className="flex items-center">
+            <div className="w-6 h-6 rounded mr-2" style={{ backgroundColor: data.value }}></div>
+            <span className="text-gray-600">{data.value}</span>
+          </div>
+        )}
+        
+        {data.type === 'radio' && (
+          <div className="space-y-2">
+            {data.options.map((option: string) => (
+              <div key={option} className="flex items-center">
+                <div className={`w-4 h-4 rounded-full mr-2 border flex items-center justify-center ${option === data.value ? 'border-pink-500' : 'border-gray-300'}`}>
+                  {option === data.value && <div className="w-2 h-2 rounded-full bg-pink-500"></div>}
+                </div>
+                <span className="text-gray-600">{option}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {data.type === 'slider' && (
+          <div className="w-full pt-2">
+            <div className="w-full h-2 bg-gray-200 rounded-full">
+              <div className="h-2 bg-pink-500 rounded-full relative" style={{ width: `${data.value * 100}%` }}>
+                <div className="absolute top-1/2 right-0 -translate-y-1/2 w-4 h-4 bg-pink-500 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      
-      {/* Card preview */}
-      <div className="h-[80px] overflow-hidden p-2">
-        <pre className="text-[9px] font-mono text-[#8B949E] overflow-hidden line-clamp-4">
-          <code>{content.split('\n').slice(0, 4).join('\n')}</code>
-        </pre>
-      </div>
-      
-      {/* Section reference */}
-      <div className="px-3 py-1 text-[10px] border-t border-[#30363D] bg-[#0D1117] text-[#8B949E] font-medium">
-        {title}
-      </div>
-      
-      <Handle type="source" position={Position.Right} className="w-3 h-3 bg-transparent" />
+      <Handle type="source" position={Position.Right} style={{ background: '#888' }} />
     </div>
   );
 }
 
-// Custom node to display section info
-function SectionNode({ data }: NodeProps) {
-  const { title, description, color } = data;
-  
+// Output node component
+function OutputNode({ data }: NodeProps) {
   return (
-    <div 
-      className="w-64 rounded-md border-2 overflow-hidden shadow-lg bg-[#161B22]/95 backdrop-blur-sm"
-      style={{ borderColor: color, backdropFilter: 'blur(4px)' }}
-    >
-      <Handle type="target" position={Position.Left} className="w-3 h-3 bg-transparent" />
-      
-      {/* Section header */}
-      <div className="px-4 py-3 border-b border-[#30363D] flex items-center">
-        <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: color }}></div>
-        <h3 className="text-sm font-medium text-white truncate">{title}</h3>
+    <div className="bg-white p-4 rounded-lg shadow-md w-96 h-96 border border-gray-200">
+      <div className="text-gray-700 font-medium mb-2">{data.label}</div>
+      <div className="bg-white rounded p-2 flex items-center justify-center h-[calc(100%-2rem)]">
+        {data.content}
       </div>
-      
-      {/* Section description */}
-      <div className="p-3 text-[11px] text-[#8B949E] max-h-24 overflow-hidden">
-        <div className="line-clamp-6">
-          {description}
-        </div>
-      </div>
-      
-      <Handle type="source" position={Position.Right} className="w-3 h-3 bg-transparent" />
+      <Handle type="target" position={Position.Left} style={{ background: '#888' }} />
     </div>
   );
 }
 
-// Custom edge that centers the connection
-function CodeFlowEdge({ sourceX, sourceY, targetX, targetY, style = {}, markerEnd }: EdgeProps) {
+// Custom edge component for dotted lines
+function FlowEdge({ sourceX, sourceY, targetX, targetY }: EdgeProps) {
   const [edgePath] = getStraightPath({
     sourceX,
     sourceY,
@@ -137,8 +110,12 @@ function CodeFlowEdge({ sourceX, sourceY, targetX, targetY, style = {}, markerEn
   return (
     <BaseEdge 
       path={edgePath} 
-      markerEnd={markerEnd} 
-      style={{ ...style, strokeWidth: 2, stroke: style.stroke || '#30363D' }} 
+      style={{ 
+        strokeWidth: 1.5, 
+        stroke: '#aaa', 
+        strokeDasharray: '5,5',
+        opacity: 0.75
+      }} 
     />
   );
 }
@@ -217,14 +194,6 @@ const CodeRenderer = ({
 };
 
 export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
-  // Section colors - define at the top level so they're available throughout
-  const sectionColors: { [key: string]: string } = {
-    "Key Components": "#FF1493",
-    "Data Flow": "#00CED1",
-    "Authentication Flow": "#32CD32",
-    "Project Overview": "#8A2BE2"
-  };
-
   // Flatten all code files from all sections
   const allCodeFiles = useMemo(() => 
     sections.flatMap(section => 
@@ -243,78 +212,84 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
     setSelectedFile(prev => prev === index ? null : index);
   };
 
-  // Generate React Flow nodes and edges
-  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
-    const nodeMap = new Map();
-    const nodes: Node[] = [];
-    const edges: Edge[] = [];
-    
-    // Add section nodes first
-    sections.forEach((section, sectionIndex) => {
-      if (!section.code || section.code.length === 0) return;
-      
-      const color = sectionColors[section.title] || 
-        ["#FF1493", "#00CED1", "#32CD32", "#8A2BE2"][sectionIndex % 4];
-      
-      const sectionId = `section-${sectionIndex}`;
-      nodeMap.set(section.title, sectionId);
-      
-      nodes.push({
-        id: sectionId,
-        type: 'sectionNode',
-        position: { x: 100, y: 100 + sectionIndex * 200 },
-        data: {
-          title: section.title,
-          description: section.content,
-          color
-        }
-      });
-    });
-    
-    // Add file nodes and connect to sections
-    allCodeFiles.forEach((file, fileIndex) => {
-      if (!file.sectionTitle) return;
-      
-      const sectionIndex = sections.findIndex(s => s.title === file.sectionTitle);
-      const color = sectionColors[file.sectionTitle] || 
-        ["#FF1493", "#00CED1", "#32CD32", "#8A2BE2"][Math.max(0, sectionIndex) % 4];
-      
-      const fileId = `file-${fileIndex}`;
-      const sectionId = nodeMap.get(file.sectionTitle);
-      
-      if (!sectionId) return;
-      
-      // Add file node
-      nodes.push({
-        id: fileId,
-        type: 'fileNode',
-        position: { 
-          x: 500, 
-          y: 100 + sectionIndex * 200 + (fileIndex % 3) * 120
-        },
-        data: {
-          title: file.sectionTitle,
-          filename: file.filename,
-          language: file.language,
-          content: file.content,
-          color,
-          onClick: () => toggleFileSelection(fileIndex)
-        }
-      });
-      
-      // Connect section to file
-      edges.push({
-        id: `edge-${sectionId}-${fileId}`,
-        source: sectionId,
-        target: fileId,
-        type: 'codeFlowEdge',
-        style: { stroke: color },
-        animated: true
-      });
-    });
-    
-    return { nodes, edges };
-  }, [sections, allCodeFiles]);
+  // Create nodes for the flow diagram
+  const initialNodes: Node[] = [
+    {
+      id: 'color-input',
+      type: 'inputNode',
+      position: { x: 100, y: 100 },
+      data: { 
+        label: 'shape color',
+        type: 'color',
+        value: '#ff0071'
+      }
+    },
+    {
+      id: 'shape-input',
+      type: 'inputNode',
+      position: { x: 100, y: 250 },
+      data: { 
+        label: 'shape type',
+        type: 'radio',
+        options: ['cube', 'pyramid'],
+        value: 'cube'
+      }
+    },
+    {
+      id: 'zoom-input',
+      type: 'inputNode',
+      position: { x: 100, y: 400 },
+      data: { 
+        label: 'zoom level',
+        type: 'slider',
+        value: 0.3
+      }
+    },
+    {
+      id: 'output',
+      type: 'outputNode',
+      position: { x: 500, y: 200 },
+      data: { 
+        label: 'output',
+        content: (
+          <div className="grid grid-cols-6 gap-2">
+            {Array(50).fill(0).map((_, i) => (
+              <div 
+                key={i} 
+                className="w-8 h-8 bg-pink-500"
+                style={{
+                  transform: `rotate(${Math.random() * 45}deg) scale(${0.8 + Math.random() * 0.4})`,
+                  opacity: 0.7 + Math.random() * 0.3
+                }}
+              />
+            ))}
+          </div>
+        )
+      }
+    }
+  ];
+
+  // Create edges connecting inputs to output
+  const initialEdges: Edge[] = [
+    {
+      id: 'edge-color-output',
+      source: 'color-input',
+      target: 'output',
+      type: 'flowEdge'
+    },
+    {
+      id: 'edge-shape-output',
+      source: 'shape-input',
+      target: 'output',
+      type: 'flowEdge'
+    },
+    {
+      id: 'edge-zoom-output',
+      source: 'zoom-input',
+      target: 'output',
+      type: 'flowEdge'
+    }
+  ];
   
   // Setup React Flow states
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -322,20 +297,20 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   
   // Define node types
   const nodeTypes = useMemo(() => ({
-    fileNode: FileNode,
-    sectionNode: SectionNode,
+    inputNode: InputNode,
+    outputNode: OutputNode,
   }), []);
   
   // Define edge types
   const edgeTypes = useMemo(() => ({
-    codeFlowEdge: CodeFlowEdge,
+    flowEdge: FlowEdge,
   }), []);
   
   return (
     <div className="w-full">
       <div className={`w-full h-[500px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* React Flow visualization */}
-        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative backdrop-blur-sm rounded-lg overflow-hidden border border-[#30363D]/30`}>
+        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative rounded-lg overflow-hidden border border-gray-200`}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -346,12 +321,12 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             connectionLineType={ConnectionLineType.Straight}
             fitView
             proOptions={{ hideAttribution: true }}
-            style={{ background: 'transparent' }}
+            style={{ background: 'radial-gradient(circle, rgba(248,246,255,1) 0%, rgba(238,232,255,1) 100%)' }}
           >
-            <Background color="#30363D" gap={16} size={1} />
-            <Controls showInteractive={false} className="bg-[#161B22] border-[#30363D] text-white" />
-            <Panel position="top-center" className="bg-[#161B22]/50 text-[#8B949E] text-xs px-2 py-1 rounded border border-[#30363D]">
-              {selectedFile === null ? 'Click on a file to view details' : 'Click on the same file again to close details'}
+            <Background color="#aaa" gap={12} size={1} />
+            <Controls showInteractive={false} className="bg-white border-gray-200 text-gray-700" />
+            <Panel position="top-center" className="bg-white/50 text-gray-600 text-xs px-2 py-1 rounded border border-gray-200">
+              {selectedFile === null ? 'Standard ReactFlow Example' : 'Click on the same file again to close details'}
             </Panel>
           </ReactFlow>
         </div>
@@ -369,15 +344,6 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
               <Card className="w-full h-full border border-[#30363D] bg-[#0D1117]/80 backdrop-blur-md rounded-xl overflow-hidden shadow-2xl">
                 <div className="p-5 border-b border-[#30363D] bg-gradient-to-r from-[#161B22]/90 to-[#0D1117]/90">
                   <div className="flex items-center">
-                    <div 
-                      className="w-3 h-3 rounded-full mr-2.5" 
-                      style={{ 
-                        backgroundColor: 
-                          allCodeFiles[selectedFile].sectionTitle ?
-                          (sectionColors[allCodeFiles[selectedFile].sectionTitle] || "#FF1493") : 
-                          "#8B949E"
-                      }}
-                    ></div>
                     <h2 className="text-lg font-medium text-[#E6EDF3] font-mono">
                       {allCodeFiles[selectedFile].filename}
                     </h2>
