@@ -144,7 +144,15 @@ export default function Home() {
       if (type === 'github') {
         result = await analyzeRepository(url);
       } else {
+        // Documentation analysis will return a friendly message from the API service
         result = await analyzeDocumentation(url);
+        
+        // Show a toast notification about docs feature being disabled
+        if (result.length === 1 && result[0].title === "Documentation Analysis Unavailable") {
+          toast.warning('Documentation Analysis Disabled', {
+            description: 'The documentation analysis feature has been disabled. Please use GitHub repository analysis instead.',
+          });
+        }
       }
       
       setWalkthrough(result);
@@ -154,7 +162,14 @@ export default function Home() {
       });
     } catch (err) {
       console.error('Error analyzing URL:', err);
-      const errorMsg = err instanceof Error ? err.message : 'An unknown error occurred';
+      let errorMsg = err instanceof Error ? err.message : 'An unknown error occurred';
+      
+      // Check if error is about repository size
+      if (err instanceof Error && 
+          err.message.includes('Repository must have at least 5 files')) {
+        errorMsg = 'Repository must have at least 5 files for meaningful analysis';
+      }
+      
       setError(errorMsg);
       
       toast.error('Error', {
