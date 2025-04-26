@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import ChatInputForm from '@/components/chatbox-ui';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import CodeWalkthrough from '@/components/CodeWalkthrough';
-import ThreeBackground from '@/components/background/ThreeBackground';
 import { analyzeRepository, analyzeDocumentation, CodeWalkthroughSection, UrlType } from '@/services/api';
 import { Switch } from '@/components/ui/switch';
 import { CustomSwitch } from '@/components/ui/custom-switch';
