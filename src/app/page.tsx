@@ -207,7 +207,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 layoutId="app-logo"
               >
-                <h1 className="text-5xl font-extrabold tracking-tight">{logoTitle}</h1>
+                <h1 className="text-4xl font-extrabold tracking-tight">{logoTitle}</h1>
               </motion.div>
               
               <motion.p 
@@ -255,7 +255,7 @@ export default function Home() {
       
       {/* Fixed form at the top - Animates in after first query */}
       <motion.div 
-        className="sticky top-0 z-20 bg-purple-50 pt-4 pb-2 px-4 md:pt-6 mt-2 md:mt-0 shadow-sm"
+        className="sticky top-0 z-20 bg-purple-50 pt-4 pb-2 px-4 md:pt-6 mt-2 md:mt-0"
         initial={!hasSentFirstQuery && !isTransitioning ? { opacity: 0 } : { opacity: 1 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
