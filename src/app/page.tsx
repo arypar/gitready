@@ -8,6 +8,7 @@ import CodeWalkthrough from '@/components/CodeWalkthrough';
 import ThreeBackground from '@/components/background/ThreeBackground';
 import { analyzeRepository, analyzeDocumentation, CodeWalkthroughSection, UrlType } from '@/services/api';
 import { Switch } from '@/components/ui/switch';
+import { CustomSwitch } from '@/components/ui/custom-switch';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Demo data for testing purposes
@@ -183,6 +184,15 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-purple-50 font-sans overflow-hidden">
+      {/* Demo Mode Toggle - Always visible at the top */}
+      <div className="absolute top-2 right-4 z-50 flex items-center space-x-2">
+        <span className="text-xs font-medium text-slate-700">Demo Mode</span>
+        <CustomSwitch 
+          checked={isDemoMode} 
+          onCheckedChange={setIsDemoMode} 
+        />
+      </div>
+      
       <AnimatePresence>
         {/* Initial centered content - Animates out on first message */}
         {!hasSentFirstQuery && !isTransitioning && (
@@ -227,21 +237,6 @@ export default function Home() {
               </motion.div>
             </div>
             
-            {/* Demo Mode Toggle */}
-            <motion.div 
-              className="absolute top-6 right-6 flex items-center space-x-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <span className="text-xs text-slate-500">Demo Mode</span>
-              <Switch 
-                checked={isDemoMode} 
-                onCheckedChange={setIsDemoMode} 
-                className="data-[state=checked]:bg-purple-600" 
-              />
-            </motion.div>
-            
             {isDemoMode && (
               <div className="mt-2 text-center">
                 <span className="text-xs px-2 py-1 bg-purple-100 text-purple-600 rounded-full">
@@ -255,7 +250,7 @@ export default function Home() {
       
       {/* Fixed form at the top - Animates in after first query */}
       <motion.div 
-        className="sticky top-0 z-20 bg-purple-50 pt-4 pb-2 px-4 md:pt-6 mt-2 md:mt-0"
+        className="sticky top-0 z-20 bg-purple-50 pt-6 pb-3 px-4 md:pt-8 mt-2 md:mt-0"
         initial={!hasSentFirstQuery && !isTransitioning ? { opacity: 0 } : { opacity: 1 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -276,20 +271,6 @@ export default function Home() {
             <motion.div layoutId="chat-input">
               <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
             </motion.div>
-          )}
-          
-          {/* Demo Mode Toggle in header */}
-          {(hasSentFirstQuery || isTransitioning) && (
-            <div className="flex justify-end mt-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-slate-500">Demo Mode</span>
-                <Switch 
-                  checked={isDemoMode} 
-                  onCheckedChange={setIsDemoMode} 
-                  className="data-[state=checked]:bg-purple-600" 
-                />
-              </div>
-            </div>
           )}
         </div>
       </motion.div>
