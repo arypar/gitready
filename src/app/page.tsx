@@ -81,6 +81,7 @@ const DEMO_WALKTHROUGH: CodeWalkthroughSection[] = [
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [walkthrough, setWalkthrough] = useState<CodeWalkthroughSection[]>([]);
+  const [repositorySummary, setRepositorySummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [hasSentFirstQuery, setHasSentFirstQuery] = useState(false);
@@ -119,6 +120,7 @@ export default function Home() {
       
       setIsLoading(true);
       setError(null);
+      setRepositorySummary(null);
       
       // Clear previous walkthrough results before showing new ones
       setWalkthrough([]);
@@ -139,23 +141,36 @@ export default function Home() {
       });
       
       // Real API call
-      let result: CodeWalkthroughSection[];
+      let resultSections: CodeWalkthroughSection[];
+      let resultSummary: string | null = null;
       
       if (type === 'github') {
-        result = await analyzeRepository(url);
+        // Assume analyzeRepository might return an object with sections and summary
+        const response = await analyzeRepository(url) as any; // Use type assertion
+        // Check if response has sections and summary structure or is just sections array
+        if (response && Array.isArray(response.sections)) {
+          resultSections = response.sections;
+          resultSummary = response.summary || null;
+        } else if (Array.isArray(response)) {
+          // Handle case where only sections are returned (original behavior)
+          resultSections = response;
+        } else {
+          throw new Error("Unexpected API response format");
+        }
       } else {
         // Documentation analysis will return a friendly message from the API service
-        result = await analyzeDocumentation(url);
+        resultSections = await analyzeDocumentation(url);
         
         // Show a toast notification about docs feature being disabled
-        if (result.length === 1 && result[0].title === "Documentation Analysis Unavailable") {
+        if (resultSections.length === 1 && resultSections[0].title === "Documentation Analysis Unavailable") {
           toast.warning('Documentation Analysis Disabled', {
             description: 'The documentation analysis feature has been disabled. Please use GitHub repository analysis instead.',
           });
         }
       }
       
-      setWalkthrough(result);
+      setWalkthrough(resultSections);
+      setRepositorySummary(resultSummary);
       
       toast.success('Success', {
         description: 'Walkthrough generated successfully',
@@ -318,7 +333,7 @@ export default function Home() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <CodeWalkthrough sections={walkthrough} />
+                <CodeWalkthrough sections={walkthrough} repositorySummary={repositorySummary} />
               </motion.div>
             )}
           </AnimatePresence>

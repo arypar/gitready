@@ -44,6 +44,7 @@ interface CodeWalkthroughProps {
     content: string;
     code?: CodeWithAnnotations[];
   }[];
+  repositorySummary?: string | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -246,7 +247,7 @@ function CodeRenderer({
 /* --------------------------- Main comp ---------------------------- */
 /* ------------------------------------------------------------------ */
 
-export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
+export default function CodeWalkthrough({ sections, repositorySummary }: CodeWalkthroughProps) {
   /* ---- 1. Flatten every code file across all input sections ---- */
   const allCodeFiles = useMemo(
     () =>
@@ -283,13 +284,16 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
           },
         ];
 
-    // Calculate positions in a circular or force-directed layout
     const numFiles = sample.length;
+    const numColumns = 3; // Set number of columns
+    const colWidth = 300; // Increased width for more horizontal spacing
+    const rowHeight = 200; // Height of node + spacing
     
-    // Create nodes in a vertical layout
     sample.forEach((file, idx) => {
-      const x = 400; // Fixed horizontal position
-      const y = 120 + idx * 180; // Vertical stacking with spacing
+      const col = idx % numColumns;
+      const row = Math.floor(idx / numColumns);
+      const x = 100 + col * colWidth; // Position based on column
+      const y = 100 + row * rowHeight; // Position based on row
       
       // Extract file extension and name
       const pathParts = file.filename.split('/');
@@ -354,7 +358,7 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
       }
     });
     
-    // Restore simple sequential edges
+    // Restore simple sequential edges for now (layout is complex)
     edges.length = 0; // Clear existing edges
     for (let i = 0; i < nodes.length - 1; i++) {
       edges.push({
@@ -379,8 +383,21 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
   /* ---- 4. Render ------------------------------------------------ */
   return (
     <div className="w-full bg-[#0D1117] text-[#C9D1D9] rounded-lg p-4 flex flex-col space-y-4">
+      {/* Repository Summary Section */} 
+      {repositorySummary && (
+        <motion.div 
+          className="p-4 bg-[#161B22] border border-[#30363D] rounded-lg shadow-md mb-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h2 className="text-lg font-semibold text-[#E6EDF3] mb-2">Repository Overview</h2>
+          <p className="text-sm text-[#8B949E]">{repositorySummary}</p>
+        </motion.div>
+      )}
+      
       {/* Container for Flow and Expanded View */}
-      <div className={`w-full h-[800px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
+      <div className={`w-full transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between h-[800px]' : 'block h-[600px]'}`}>
         {/* Flow diagram container */}
         <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative border border-[#30363D] rounded-lg shadow-md bg-[#161B22] overflow-hidden`}>
           <ReactFlow
