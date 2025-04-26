@@ -147,96 +147,93 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
 
   return (
     <div className="w-full">
-      {/* Card deck */}
-      <div ref={deckRef} className="relative w-full min-h-[220px]">
+      {/* Flow chart visualization */}
+      <div ref={deckRef} className="relative w-full min-h-[400px] mb-10">
         {allCodeFiles.length === 0 ? (
           <div className="w-full text-center py-10 text-slate-700">
             No code files available
           </div>
         ) : (
           <div className="w-full flex items-center justify-center">
-            <div className="relative w-full h-[220px]">
-              {/* Spread cards */}
-              {allCodeFiles.map((file, index) => {
-                // Calculate position for spread effect
-                const totalWidth = deckRef.current?.clientWidth || 800;
-                const cardWidth = Math.min(280, totalWidth / 4);
-                const spreadWidth = Math.min(totalWidth - cardWidth, allCodeFiles.length * 40);
-                const step = allCodeFiles.length > 1 ? spreadWidth / (allCodeFiles.length - 1) : 0;
-                const xPos = (index * step) - (spreadWidth / 2) + (cardWidth / 2);
-                
-                // Calculate rotation for fan effect
-                const maxRotation = 5;
-                const midpoint = (allCodeFiles.length - 1) / 2;
-                const rotationStep = allCodeFiles.length > 1 ? maxRotation * 2 / (allCodeFiles.length - 1) : 0;
-                const rotation = (index - midpoint) * rotationStep;
-                
-                const isHovered = hoveredFile === index;
-                const isSelected = selectedFile === index;
-                const zIndex = isHovered || isSelected ? 50 : 10 + index;
-                const yOffset = isHovered ? -20 : 0;
-                
-                const fileColor = getFileColor(file.filename);
-                
-                return (
-                  <motion.div 
-                    key={`file-${index}`}
-                    className="absolute origin-bottom cursor-pointer"
-                    style={{ 
-                      left: `calc(50% + ${xPos}px)`,
-                      zIndex, 
-                      width: `${cardWidth}px`,
-                      transform: `translateX(-50%) rotate(${rotation}deg)`,
-                    }}
-                    initial={{ y: 0 }}
-                    animate={{ 
-                      y: yOffset,
-                      scale: isSelected ? 1 : isHovered ? 1.05 : 1,
-                      filter: isHovered ? 'brightness(1.2)' : 'brightness(1)'
-                    }}
-                    transition={{ duration: 0.2 }}
-                    onHoverStart={() => !isSelected && setHoveredFile(index)}
-                    onHoverEnd={() => setHoveredFile(null)}
-                    onClick={() => setSelectedFile(index)}
-                  >
-                    <div className={`w-full h-[180px] rounded-md shadow-lg border border-[#30363D] ${
-                      isSelected ? 'bg-[#1C2F45]/90' : 'bg-[#161B22]/90'
-                    } backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-200`}>
-                      {/* Card header */}
-                      <div className="h-10 px-3 border-b border-[#30363D] flex items-center justify-between bg-gradient-to-r from-[#161B22] to-[#0D1117]">
-                        <div className="flex items-center">
-                          <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: fileColor }}></div>
-                          <span className="font-mono text-xs text-[#E6EDF3] truncate max-w-[180px]">
-                            {file.filename.split('/').pop()}
-                          </span>
+            <div className="relative w-full max-w-5xl">
+              <div className="flex flex-wrap justify-center gap-4 my-8">
+                {/* Simple grid layout for files */}
+                {allCodeFiles.map((file, index) => {
+                  // Find section for this file
+                  const sectionIndex = sections.findIndex(s => 
+                    s.title === (file.sectionTitle || ''));
+                  
+                  // Color based on section
+                  const colors = ['#8A2BE2', '#FF1493', '#00CED1', '#32CD32'];
+                  const color = colors[Math.max(0, sectionIndex) % colors.length];
+                  
+                  const isHovered = hoveredFile === index;
+                  const isSelected = selectedFile === index;
+                  
+                  return (
+                    <motion.div 
+                      key={`file-${index}`}
+                      className="cursor-pointer"
+                      style={{ width: '240px' }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        scale: isSelected ? 1.05 : isHovered ? 1.02 : 1,
+                        boxShadow: isSelected || isHovered ? '0 8px 20px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.2)'
+                      }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      onHoverStart={() => !isSelected && setHoveredFile(index)}
+                      onHoverEnd={() => setHoveredFile(null)}
+                      onClick={() => setSelectedFile(index)}
+                    >
+                      <div className={`rounded-md border-2 overflow-hidden ${
+                        isSelected ? 'bg-[#1C2F45]/90' : 'bg-[#161B22]/90'
+                      } backdrop-blur-sm`}
+                      style={{ borderColor: color }}>
+                        {/* Card header */}
+                        <div className="px-3 py-2 border-b border-[#30363D] flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: color }}></div>
+                            <span className="font-mono text-xs text-[#E6EDF3] truncate max-w-[140px]">
+                              {file.filename.split('/').pop()}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-[#8B949E]">{getFileExtension(file.filename)}</span>
                         </div>
-                        <span className="text-[10px] text-[#8B949E]">{getFileExtension(file.filename)}</span>
+                        
+                        {/* Card preview */}
+                        <div className="h-[80px] overflow-hidden p-2">
+                          <pre className="text-[9px] font-mono text-[#8B949E] overflow-hidden line-clamp-4">
+                            <code>{file.content.split('\n').slice(0, 4).join('\n')}</code>
+                          </pre>
+                        </div>
+                        
+                        {/* Section reference */}
+                        {file.sectionTitle && (
+                          <div className="px-3 py-1 text-[10px] border-t border-[#30363D] bg-[#0D1117] text-[#8B949E]">
+                            {file.sectionTitle}
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Card preview */}
-                      <div className="h-[140px] overflow-hidden p-3 bg-gradient-to-b from-[#161B22] to-[#0D1117]">
-                        <pre className="text-[10px] font-mono text-[#8B949E] overflow-hidden line-clamp-[13]">
-                          <code>{file.content.split('\n').slice(0, 15).join('\n')}</code>
-                        </pre>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
       </div>
       
-      {/* Selected file detail view */}
+      {/* Selected file detail view - centered in the display */}
       <AnimatePresence>
-        {selectedFile !== null && (
+        {selectedFile !== null && allCodeFiles[selectedFile] && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
             transition={{ duration: 0.3 }}
-            className="mt-10 relative"
+            className="mt-6 relative max-w-3xl mx-auto"
           >
             <Card className="w-full mx-auto border border-[#30363D] bg-[#0D1117]/80 backdrop-blur-md rounded-xl overflow-hidden shadow-2xl">
               <div className="absolute top-3 right-3 z-10">
@@ -260,15 +257,19 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                         {allCodeFiles[selectedFile].filename}
                       </h2>
                     </div>
-                    <p className="mt-2 text-sm text-[#8B949E]">
-                      From section: {allCodeFiles[selectedFile].sectionTitle}
-                    </p>
+                    {allCodeFiles[selectedFile].sectionTitle && (
+                      <p className="mt-2 text-sm text-[#8B949E]">
+                        From section: {allCodeFiles[selectedFile].sectionTitle}
+                      </p>
+                    )}
                   </div>
                   
                   <div className="p-5 bg-gradient-to-b from-[#0D1117]/95 to-[#0D1117]/80">
-                    <div className="prose prose-invert max-w-none mb-6 prose-p:text-[#C9D1D9] prose-headings:text-[#E6EDF3] prose-a:text-[#58A6FF] prose-code:text-[#79C0FF] prose-strong:text-[#E6EDF3] text-sm">
-                      <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
-                    </div>
+                    {allCodeFiles[selectedFile].sectionContent && (
+                      <div className="prose prose-invert max-w-none mb-6 prose-p:text-[#C9D1D9] prose-headings:text-[#E6EDF3] prose-a:text-[#58A6FF] prose-code:text-[#79C0FF] prose-strong:text-[#E6EDF3] text-sm">
+                        <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
+                      </div>
+                    )}
                     
                     <div className="relative">
                       <div className="flex justify-between items-center bg-[#161B22] text-xs px-3 py-2 rounded-t-md border-t border-x border-[#30363D]">
@@ -314,7 +315,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
       
       {/* Visual guide to instruct users */}
       {selectedFile === null && allCodeFiles.length > 0 && (
-        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 text-center text-slate-600 animate-pulse pointer-events-none">
+        <div className="text-center text-slate-600 mt-4 pointer-events-none">
           <div className="text-sm">Click on a file to view details</div>
         </div>
       )}
