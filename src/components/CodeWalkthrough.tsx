@@ -269,8 +269,8 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
         id: `file-${index}`,
         type: 'fileNode',
         position: { 
-          x: 250, 
-          y: 100 + index * 180 
+          x: 400, 
+          y: 120 + index * 200 
         },
         data: {
           filename: file.filename,
@@ -284,30 +284,16 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
     
     // Create edges based on imports
     filesToUse.forEach((file, sourceIndex) => {
-      const imports = fileRelationships[file.filename] || [];
-      
-      imports.forEach(importPath => {
-        // Find the target file index
-        const targetIndex = filesToUse.findIndex(f => {
-          const filename = f.filename;
-          const basename = filename.split('/').pop() || '';
-          const withoutExt = basename.replace(/\.[^.]+$/, '');
-          
-          return filename === importPath || 
-                 importPath.includes(withoutExt) || 
-                 filename.includes(importPath);
+      // Skip the last file as it won't have a next file to connect to
+      if (sourceIndex < filesToUse.length - 1) {
+        edges.push({
+          id: `edge-${sourceIndex}-${sourceIndex + 1}`,
+          source: `file-${sourceIndex}`,
+          target: `file-${sourceIndex + 1}`,
+          animated: true,
+          style: { stroke: '#aaa', strokeWidth: 1.5, strokeDasharray: '5,5' }
         });
-        
-        if (targetIndex !== -1 && targetIndex !== sourceIndex) {
-          edges.push({
-            id: `edge-${sourceIndex}-${targetIndex}`,
-            source: `file-${sourceIndex}`,
-            target: `file-${targetIndex}`,
-            animated: true,
-            style: { stroke: '#aaa', strokeWidth: 1.5, strokeDasharray: '5,5' }
-          });
-        }
-      });
+      }
     });
     
     return { nodes, edges };
