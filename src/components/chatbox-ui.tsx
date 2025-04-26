@@ -176,17 +176,6 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
           </motion.div>
         )}
       </AnimatePresence>
-      
-      <motion.div 
-        className="text-center mt-2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.3 }}
-      >
-        <p className="text-xs text-[#8B949E]">
-          {isLoading ? 'Analysis in progress...' : 'Enter a GitHub repository URL or documentation link'}
-        </p>
-      </motion.div>
     </div>
   )
 } 

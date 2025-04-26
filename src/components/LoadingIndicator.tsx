@@ -23,10 +23,10 @@ export default function LoadingIndicator() {
       {/* Text */}
       <div className="space-y-2 text-center">
         <p className="text-[#E6EDF3] text-lg font-semibold">
-          Analyzing repository
+          Gitting your repo ready...
         </p>
         <p className="text-sm text-[#8B949E]">
-          Processing code structure and generating documentation...
+          Parsing code structure and preparing your walkthrough.
         </p>
       </div>
       

@@ -9,6 +9,7 @@ import { analyzeRepository, analyzeDocumentation, CodeWalkthroughSection, UrlTyp
 import { Switch } from '@/components/ui/switch';
 import { CustomSwitch } from '@/components/ui/custom-switch';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 // Demo data for testing purposes
 const DEMO_WALKTHROUGH: CodeWalkthroughSection[] = [
@@ -83,10 +84,10 @@ export default function Home() {
   const [walkthrough, setWalkthrough] = useState<CodeWalkthroughSection[]>([]);
   const [repositorySummary, setRepositorySummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isDemoMode, setIsDemoMode] = useState(false);
   const [hasSentFirstQuery, setHasSentFirstQuery] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [analyzedUrl, setAnalyzedUrl] = useState<string | null>(null);
 
   // When transitioning state or walkthrough changes, manage visibility of content
   useEffect(() => {
@@ -121,22 +122,13 @@ export default function Home() {
       setIsLoading(true);
       setError(null);
       setRepositorySummary(null);
+      setAnalyzedUrl(url);
       
       // Clear previous walkthrough results before showing new ones
       setWalkthrough([]);
       
-      // If demo mode is enabled, return the demo data after a brief delay
-      if (isDemoMode) {
-        console.log("Demo mode active, showing demo data");
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setWalkthrough(DEMO_WALKTHROUGH);
-        setIsLoading(false);
-        return;
-      } 
-      
       // For real API calls
-      toast.success('Analyzing...', {
+      toast.success('Gitting Ready...', {
         description: `Processing ${type === 'github' ? 'repository' : 'documentation'} at ${url}`,
       });
       
@@ -172,8 +164,8 @@ export default function Home() {
       setWalkthrough(resultSections);
       setRepositorySummary(resultSummary);
       
-      toast.success('Success', {
-        description: 'Walkthrough generated successfully',
+      toast.success('Ready!', {
+        description: 'Walkthrough generated successfully. Git ready!',
       });
     } catch (err) {
       console.error('Error analyzing URL:', err);
@@ -195,18 +187,25 @@ export default function Home() {
     }
   };
 
+  // Helper to extract repo name from URL
+  const getRepoNameFromUrl = (url: string | null): string => {
+    if (!url) return 'Repository';
+    try {
+      const path = new URL(url).pathname.split('/');
+      // Handle URLs like github.com/org/repo or github.com/org/repo/...
+      if (path.length >= 3 && path[1] && path[2]) {
+        return `${path[1]} / ${path[2]}`;
+      }
+    } catch (e) {
+      // Fallback if URL parsing fails
+    }
+    return url.split('/').slice(-2).join('/') || 'Repository'; // Simple fallback
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0D1117] text-[#C9D1D9] font-sans overflow-hidden">
       {/* Background overlay for React Flow */}
       <div className="fixed inset-0 z-[-1] bg-[#0D1117] opacity-90"></div>
-      {/* Demo Mode Toggle - Always visible at the top */}
-      <div className="absolute top-2 right-4 z-50 flex items-center space-x-2">
-        <span className="text-xs font-medium text-[#8B949E]">Demo Mode</span>
-        <CustomSwitch 
-          checked={isDemoMode} 
-          onCheckedChange={setIsDemoMode} 
-        />
-      </div>
       
       <AnimatePresence>
         {/* Initial centered content - Animates out on first message */}
@@ -236,7 +235,7 @@ export default function Home() {
                   <div className="flex items-center gap-2">
                     <div>
                       <span className="text-[#E6EDF3] font-extrabold tracking-tight">Git</span>
-                      <span className="text-purple-400 font-extrabold tracking-tight">Freaky</span>
+                      <span className="text-purple-400 font-extrabold tracking-tight">Ready</span>
                     </div>
                     <motion.div 
                       whileHover={{ rotate: 10 }}
@@ -268,20 +267,21 @@ export default function Home() {
       
       {/* Main content area (appears after first query) */}
       <div className="flex flex-col flex-grow p-4 md:p-6 space-y-4">
-        {/* Top section: Logo and Input Form */}
+        {/* Top section: Logo and Repo Name (No Input Form) */}
         {(hasSentFirstQuery || isTransitioning) && (
           <motion.div 
-            className="flex items-center justify-between w-full mb-4"
+            className="flex flex-col items-center w-full mb-4 space-y-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
+            {/* Logo */} 
             <motion.div layoutId="app-logo">
               <h1 className="text-2xl font-extrabold tracking-tight">
                 <div className="flex items-center gap-2">
                   <div>
                     <span className="text-[#E6EDF3] font-extrabold tracking-tight">Git</span>
-                    <span className="text-purple-400 font-extrabold tracking-tight">Freaky</span>
+                    <span className="text-purple-400 font-extrabold tracking-tight">Ready</span>
                   </div>
                   <motion.div 
                     whileHover={{ rotate: 10 }}
@@ -292,9 +292,18 @@ export default function Home() {
                 </div>
               </h1>
             </motion.div>
-            <div className="w-full max-w-xl">
-              <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
-            </div>
+            
+            {/* Display Repo Name Link Below Logo */}
+            <a 
+              href={analyzedUrl || '#'} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block px-4 py-1 bg-[#21262D] border border-[#30363D] rounded-lg shadow-sm hover:bg-[#30363D] transition-colors duration-200"
+            >
+              <h2 className="text-lg font-medium text-[#A0AEC0] hover:text-[#E6EDF3]">
+                {getRepoNameFromUrl(analyzedUrl)}
+              </h2>
+            </a>
           </motion.div>
         )}
 
@@ -338,6 +347,18 @@ export default function Home() {
             )}
           </AnimatePresence>
         </div>
+
+        {/* Search Another Repo Button */}
+        {!isLoading && walkthrough.length > 0 && showContent && (
+          <div className="flex justify-center mt-6 pb-4">
+            <Button
+              onClick={() => window.location.reload()}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-colors duration-200"
+            >
+              Search Another Repository
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
