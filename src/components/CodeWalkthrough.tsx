@@ -44,56 +44,65 @@ interface CodeWalkthroughProps {
   }[];
 }
 
-// Input node component
-function InputNode({ data }: NodeProps) {
-  return (
-    <div className="bg-white p-4 rounded-lg shadow-md w-64 border border-gray-200">
-      <div className="text-gray-700 font-medium mb-2">{data.label}</div>
-      <div className="p-2">
-        {data.type === 'color' && (
-          <div className="flex items-center">
-            <div className="w-6 h-6 rounded mr-2" style={{ backgroundColor: data.value }}></div>
-            <span className="text-gray-600">{data.value}</span>
-          </div>
-        )}
-        
-        {data.type === 'radio' && (
-          <div className="space-y-2">
-            {data.options.map((option: string) => (
-              <div key={option} className="flex items-center">
-                <div className={`w-4 h-4 rounded-full mr-2 border flex items-center justify-center ${option === data.value ? 'border-pink-500' : 'border-gray-300'}`}>
-                  {option === data.value && <div className="w-2 h-2 rounded-full bg-pink-500"></div>}
-                </div>
-                <span className="text-gray-600">{option}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {data.type === 'slider' && (
-          <div className="w-full pt-2">
-            <div className="w-full h-2 bg-gray-200 rounded-full">
-              <div className="h-2 bg-pink-500 rounded-full relative" style={{ width: `${data.value * 100}%` }}>
-                <div className="absolute top-1/2 right-0 -translate-y-1/2 w-4 h-4 bg-pink-500 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      <Handle type="source" position={Position.Right} style={{ background: '#888' }} />
-    </div>
-  );
-}
+// File node component
+function FileNode({ data, selected }: NodeProps) {
+  // Extract file extension from filename
+  const getFileExtension = (name: string) => {
+    const parts = name.split('.');
+    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+  };
 
-// Output node component
-function OutputNode({ data }: NodeProps) {
+  const getFileIcon = (ext: string) => {
+    switch (ext) {
+      case 'js':
+        return '📄 JS';
+      case 'jsx':
+        return '📄 JSX';
+      case 'ts':
+        return '📄 TS';
+      case 'tsx':
+        return '📄 TSX';
+      case 'json':
+        return '📄 JSON';
+      case 'md':
+        return '📄 MD';
+      case 'css':
+        return '📄 CSS';
+      case 'html':
+        return '📄 HTML';
+      default:
+        return '📄';
+    }
+  };
+  
+  const filename = data.filename;
+  const extension = getFileExtension(filename);
+  const fileIcon = getFileIcon(extension);
+  const shortName = filename.split('/').pop() || filename;
+  
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md w-96 h-96 border border-gray-200">
-      <div className="text-gray-700 font-medium mb-2">{data.label}</div>
-      <div className="bg-white rounded p-2 flex items-center justify-center h-[calc(100%-2rem)]">
-        {data.content}
+    <div 
+      className={`bg-white rounded-lg shadow-md w-64 border transition-all duration-200 ${selected ? 'border-pink-500 scale-105' : 'border-gray-200'}`}
+      onClick={data.onClick}
+    >
+      <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between font-medium text-gray-700">
+        <div className="flex items-center">
+          <span className="mr-2">{fileIcon}</span>
+          <span className="truncate max-w-[150px]">{shortName}</span>
+        </div>
+        <span className="text-xs text-gray-400 uppercase">{extension}</span>
+      </div>
+      <div className="p-3 bg-gray-50 text-xs text-gray-600 font-mono h-24 overflow-hidden">
+        <pre className="overflow-hidden line-clamp-5">
+          {data.preview}
+        </pre>
+      </div>
+      <div className="px-3 py-2 text-xs text-gray-500 flex justify-between">
+        <span>{data.type}</span>
+        <span>{data.lines} lines</span>
       </div>
       <Handle type="target" position={Position.Left} style={{ background: '#888' }} />
+      <Handle type="source" position={Position.Right} style={{ background: '#888' }} />
     </div>
   );
 }
@@ -212,84 +221,128 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
     setSelectedFile(prev => prev === index ? null : index);
   };
 
-  // Create nodes for the flow diagram
-  const initialNodes: Node[] = [
-    {
-      id: 'color-input',
-      type: 'inputNode',
-      position: { x: 100, y: 100 },
-      data: { 
-        label: 'shape color',
-        type: 'color',
-        value: '#ff0071'
-      }
-    },
-    {
-      id: 'shape-input',
-      type: 'inputNode',
-      position: { x: 100, y: 250 },
-      data: { 
-        label: 'shape type',
-        type: 'radio',
-        options: ['cube', 'pyramid'],
-        value: 'cube'
-      }
-    },
-    {
-      id: 'zoom-input',
-      type: 'inputNode',
-      position: { x: 100, y: 400 },
-      data: { 
-        label: 'zoom level',
-        type: 'slider',
-        value: 0.3
-      }
-    },
-    {
-      id: 'output',
-      type: 'outputNode',
-      position: { x: 500, y: 200 },
-      data: { 
-        label: 'output',
-        content: (
-          <div className="grid grid-cols-6 gap-2">
-            {Array(50).fill(0).map((_, i) => (
-              <div 
-                key={i} 
-                className="w-8 h-8 bg-pink-500"
-                style={{
-                  transform: `rotate(${Math.random() * 45}deg) scale(${0.8 + Math.random() * 0.4})`,
-                  opacity: 0.7 + Math.random() * 0.3
-                }}
-              />
-            ))}
-          </div>
-        )
-      }
-    }
-  ];
+  // Generate React Flow nodes and edges for the file diagram
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
+    
+    // Use sample files or use allCodeFiles if available
+    const filesToUse = allCodeFiles.length > 0 ? allCodeFiles : [
+      {
+        filename: 'src/components/App.tsx',
+        language: 'tsx',
+        content: 'import React from "react";\nimport { Header } from "./Header";\nimport { Footer } from "./Footer";\nimport { Main } from "./Main";\n\nexport function App() {\n  return (\n    <div className="app">\n      <Header />\n      <Main />\n      <Footer />\n    </div>\n  );\n}',
+      },
+      {
+        filename: 'src/components/Header.tsx',
+        language: 'tsx',
+        content: 'import React from "react";\nimport { Logo } from "./Logo";\nimport { Navigation } from "./Navigation";\n\nexport function Header() {\n  return (\n    <header className="header">\n      <Logo />\n      <Navigation />\n    </header>\n  );\n}',
+      },
+      {
+        filename: 'src/components/Footer.tsx',
+        language: 'tsx',
+        content: 'import React from "react";\n\nexport function Footer() {\n  return (\n    <footer className="footer">\n      <p>© 2023 My Company</p>\n    </footer>\n  );\n}',
+      },
+      {
+        filename: 'src/components/Main.tsx',
+        language: 'tsx',
+        content: 'import React from "react";\nimport { Content } from "./Content";\nimport { Sidebar } from "./Sidebar";\n\nexport function Main() {\n  return (\n    <main className="main">\n      <Content />\n      <Sidebar />\n    </main>\n  );\n}',
+      },
+      {
+        filename: 'src/components/Navigation.tsx',
+        language: 'tsx',
+        content: 'import React from "react";\n\nexport function Navigation() {\n  return (\n    <nav className="navigation">\n      <ul>\n        <li><a href="/">Home</a></li>\n        <li><a href="/about">About</a></li>\n        <li><a href="/contact">Contact</a></li>\n      </ul>\n    </nav>\n  );\n}',
+      },
+    ];
 
-  // Create edges connecting inputs to output
-  const initialEdges: Edge[] = [
-    {
-      id: 'edge-color-output',
-      source: 'color-input',
-      target: 'output',
-      type: 'flowEdge'
-    },
-    {
-      id: 'edge-shape-output',
-      source: 'shape-input',
-      target: 'output',
-      type: 'flowEdge'
-    },
-    {
-      id: 'edge-zoom-output',
-      source: 'zoom-input',
-      target: 'output',
-      type: 'flowEdge'
-    }
-  ];
+    // Create file relationship map (simple imports analysis)
+    const fileRelationships: Record<string, string[]> = {};
+    
+    filesToUse.forEach(file => {
+      const importMatches = file.content.match(/import.*from\s+['"](.+)['"]/g) || [];
+      const importedFiles = importMatches.map(match => {
+        const importPath = match.match(/from\s+['"](.+)['"]/)?.[1] || '';
+        // Convert relative imports to full paths (simplified)
+        if (importPath.startsWith('./')) {
+          const dir = file.filename.split('/').slice(0, -1).join('/');
+          return `${dir}/${importPath.substring(2)}`;
+        }
+        return importPath;
+      });
+      
+      fileRelationships[file.filename] = importedFiles;
+    });
+    
+    // Create nodes for each file
+    filesToUse.forEach((file, index) => {
+      const lines = file.content.split('\n').length;
+      const preview = file.content.split('\n').slice(0, 5).join('\n');
+      
+      nodes.push({
+        id: `file-${index}`,
+        type: 'fileNode',
+        position: { 
+          x: 100 + (index % 3) * 300, 
+          y: 100 + Math.floor(index / 3) * 200 
+        },
+        data: {
+          filename: file.filename,
+          preview: preview,
+          type: getNodeType(file.filename),
+          lines: lines,
+          language: file.language,
+          onClick: () => toggleFileSelection(index)
+        }
+      });
+    });
+    
+    // Create edges based on imports
+    filesToUse.forEach((file, sourceIndex) => {
+      const imports = fileRelationships[file.filename] || [];
+      
+      imports.forEach(importPath => {
+        // Find the target file index
+        const targetIndex = filesToUse.findIndex(f => {
+          const filename = f.filename;
+          const basename = filename.split('/').pop() || '';
+          const withoutExt = basename.replace(/\.[^.]+$/, '');
+          
+          return filename === importPath || 
+                 importPath.includes(withoutExt) || 
+                 filename.includes(importPath);
+        });
+        
+        if (targetIndex !== -1 && targetIndex !== sourceIndex) {
+          edges.push({
+            id: `edge-${sourceIndex}-${targetIndex}`,
+            source: `file-${sourceIndex}`,
+            target: `file-${targetIndex}`,
+            type: 'flowEdge',
+            animated: true
+          });
+        }
+      });
+    });
+    
+    return { nodes, edges };
+  }, [allCodeFiles]);
+  
+  // Determine node type based on filename
+  function getNodeType(filename: string): string {
+    if (filename.includes('component')) return 'Component';
+    if (filename.includes('util')) return 'Utility';
+    if (filename.includes('hook')) return 'Hook';
+    if (filename.includes('context')) return 'Context';
+    if (filename.includes('reducer')) return 'Reducer';
+    if (filename.includes('action')) return 'Action';
+    if (filename.includes('api')) return 'API';
+    if (filename.includes('model')) return 'Model';
+    if (filename.includes('type')) return 'Types';
+    if (filename.includes('test')) return 'Test';
+    if (filename.includes('page')) return 'Page';
+    if (filename.includes('layout')) return 'Layout';
+    return 'File';
+  }
   
   // Setup React Flow states
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -297,8 +350,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   
   // Define node types
   const nodeTypes = useMemo(() => ({
-    inputNode: InputNode,
-    outputNode: OutputNode,
+    fileNode: FileNode,
   }), []);
   
   // Define edge types
@@ -326,7 +378,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             <Background color="#aaa" gap={12} size={1} />
             <Controls showInteractive={false} className="bg-white border-gray-200 text-gray-700" />
             <Panel position="top-center" className="bg-white/50 text-gray-600 text-xs px-2 py-1 rounded border border-gray-200">
-              {selectedFile === null ? 'Standard ReactFlow Example' : 'Click on the same file again to close details'}
+              {selectedFile === null ? 'File Structure Flow Diagram' : 'Click on the same file again to close details'}
             </Panel>
           </ReactFlow>
         </div>
