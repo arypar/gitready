@@ -104,24 +104,19 @@ function FileNode({ data, selected }: NodeProps) {
   );
 }
 
-// Custom edge component for dotted lines
+// Custom edge component for animated dotted lines
 function FlowEdge({ sourceX, sourceY, targetX, targetY }: EdgeProps) {
-  const [edgePath] = getStraightPath({
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-  });
-
   return (
-    <BaseEdge 
-      path={edgePath} 
-      style={{ 
-        strokeWidth: 1.5, 
-        stroke: '#aaa', 
-        strokeDasharray: '5,5',
-        opacity: 0.75
-      }} 
+    <path
+      d={`M${sourceX} ${sourceY}L${targetX} ${targetY}`}
+      className="react-flow__edge-path"
+      strokeWidth={1.5}
+      stroke="#ccc"
+      strokeDasharray="5,5"
+      style={{
+        strokeDashoffset: 20,
+        animation: "flowAnimation 30s linear infinite"
+      }}
     />
   );
 }
@@ -218,6 +213,15 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
     setSelectedFile(prev => prev === index ? null : index);
   };
 
+  // CSS for flow animation
+  const animationStyles = `
+    @keyframes flowAnimation {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+  `;
+  
   // Generate React Flow nodes and edges for the file diagram
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
     const nodes: Node[] = [];
@@ -355,6 +359,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   
   return (
     <div className="w-full">
+      <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       <div className={`w-full h-[500px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* React Flow visualization */}
         <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative rounded-lg overflow-hidden border border-gray-200`}>
