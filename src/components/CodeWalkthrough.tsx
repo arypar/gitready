@@ -85,6 +85,7 @@ function FileNode({ data, selected }: NodeProps) {
       className={`bg-white rounded-lg shadow-md border transition-all duration-200 ${selected ? 'border-pink-500 scale-105' : 'border-gray-200'}`}
       onClick={data.onClick}
     >
+      <Handle type="target" position={Position.Top} style={{ background: '#888' }} />
       <div className="p-3 flex items-center justify-between">
         <div className="flex items-center">
           <span className="mr-2 text-lg">{fileIcon}</span>
@@ -98,8 +99,7 @@ function FileNode({ data, selected }: NodeProps) {
           <span className="text-xs text-gray-500">{data.lines} lines</span>
         </div>
       </div>
-      <Handle type="target" position={Position.Left} style={{ background: '#888' }} />
-      <Handle type="source" position={Position.Right} style={{ background: '#888' }} />
+      <Handle type="source" position={Position.Bottom} style={{ background: '#888' }} />
     </div>
   );
 }
