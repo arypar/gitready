@@ -145,7 +145,7 @@ const CodeRenderer = ({
   const codeWithAnnotations = prepareCodeLines(code, annotations);
   
   return (
-    <div className="bg-gradient-to-b from-[#0D1117] to-[#0D1117]/95 overflow-auto max-h-[600px] scrollbar-thin scrollbar-thumb-[#30363D] scrollbar-track-transparent">
+    <div className="bg-white overflow-auto max-h-[600px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
       <table className="min-w-full border-collapse">
         <tbody>
           {code.split('\n').map((line, lineIdx) => {
@@ -154,8 +154,8 @@ const CodeRenderer = ({
             const annotation = codeWithAnnotations.getAnnotationForLine(lineNumber);
             
             return (
-              <tr key={lineIdx} className={hasAnnotation ? "bg-[#1C2F45]/50 backdrop-blur-sm" : "hover:bg-[#161B22]/40"}>
-                <td className="text-right py-0 pr-4 pl-4 border-r border-[#30363D] text-[#6E7681] select-none w-[1%] font-mono text-xs">
+              <tr key={lineIdx} className={hasAnnotation ? "bg-blue-50/50 backdrop-blur-sm" : "hover:bg-gray-50"}>
+                <td className="text-right py-0 pr-4 pl-4 border-r border-gray-200 text-gray-400 select-none w-[1%] font-mono text-xs">
                   {lineNumber}
                 </td>
                 <td className="py-0.5 px-4 font-mono text-sm whitespace-pre">
@@ -174,9 +174,9 @@ const CodeRenderer = ({
                     {line}
                   </SyntaxHighlighter>
                 </td>
-                <td className="w-[30%] pl-4 py-0 text-xs text-[#58A6FF]">
+                <td className="w-[30%] pl-4 py-0 text-xs text-blue-600">
                   {hasAnnotation && (
-                    <div className="bg-[#1F2937]/80 p-2 rounded border-l-2 border-[#388BFD] shadow-sm backdrop-blur-sm">
+                    <div className="bg-blue-50 p-2 rounded border-l-2 border-blue-400 shadow-sm backdrop-blur-sm">
                       {annotation}
                     </div>
                   )}
@@ -207,6 +207,30 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   // Toggle selection - clicking same file will deselect it
   const toggleFileSelection = (index: number) => {
     setSelectedFile(prev => prev === index ? null : index);
+  };
+  
+  // Helper function to get file icon
+  const getFileIcon = (ext: string) => {
+    switch (ext) {
+      case 'js':
+        return '📄 JS';
+      case 'jsx':
+        return '📄 JSX';
+      case 'ts':
+        return '📄 TS';
+      case 'tsx':
+        return '📄 TSX';
+      case 'json':
+        return '📄 JSON';
+      case 'md':
+        return '📄 MD';
+      case 'css':
+        return '📄 CSS';
+      case 'html':
+        return '📄 HTML';
+      default:
+        return '📄';
+    }
   };
   
   // Generate React Flow nodes and edges for the file diagram
@@ -345,9 +369,9 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             connectionLineType={ConnectionLineType.Straight}
             fitView
             proOptions={{ hideAttribution: true }}
-            style={{ background: 'transparent' }}
+            style={{ background: 'white' }}
           >
-            <Background color="#aaa" gap={12} size={1} />
+            <Background color="#ddd" gap={12} size={1} />
             <Controls showInteractive={false} className="bg-white border-gray-200 text-gray-700" />
           </ReactFlow>
         </div>
@@ -362,45 +386,48 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="h-full overflow-auto"
             >
-              <Card className="w-full h-full border border-[#30363D] bg-[#0D1117]/80 backdrop-blur-md rounded-xl overflow-hidden shadow-2xl">
-                <div className="p-5 border-b border-[#30363D] bg-gradient-to-r from-[#161B22]/90 to-[#0D1117]/90">
+              <Card className="w-full h-full border border-gray-200 bg-white backdrop-blur-md rounded-lg overflow-hidden shadow-md">
+                <div className="p-5 border-b border-gray-200 bg-white">
                   <div className="flex items-center">
-                    <h2 className="text-lg font-medium text-[#E6EDF3] font-mono">
-                      {allCodeFiles[selectedFile].filename}
+                    <span className="mr-2 text-lg">
+                      {getFileIcon(allCodeFiles[selectedFile].filename.split('.').pop() || '')}
+                    </span>
+                    <h2 className="text-lg font-medium text-gray-800 font-mono">
+                      {allCodeFiles[selectedFile].filename.split('/').pop() || ''}
                     </h2>
                   </div>
                   {allCodeFiles[selectedFile].sectionTitle && (
-                    <p className="mt-2 text-sm text-[#8B949E]">
+                    <p className="mt-2 text-sm text-gray-500">
                       From section: {allCodeFiles[selectedFile].sectionTitle}
                     </p>
                   )}
                 </div>
                 
-                <div className="p-5 bg-gradient-to-b from-[#0D1117]/95 to-[#0D1117]/80 overflow-auto">
+                <div className="p-5 bg-white overflow-auto">
                   {allCodeFiles[selectedFile].sectionContent && (
-                    <div className="prose prose-invert max-w-none mb-6 prose-p:text-[#C9D1D9] prose-headings:text-[#E6EDF3] prose-a:text-[#58A6FF] prose-code:text-[#79C0FF] prose-strong:text-[#E6EDF3] text-sm">
+                    <div className="prose max-w-none mb-6 prose-p:text-gray-600 prose-headings:text-gray-800 prose-a:text-blue-500 prose-code:text-blue-700 prose-strong:text-gray-800 text-sm">
                       <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
                     </div>
                   )}
                   
                   <div className="relative">
-                    <div className="flex justify-between items-center bg-[#161B22] text-xs px-3 py-2 rounded-t-md border-t border-x border-[#30363D]">
+                    <div className="flex justify-between items-center bg-gray-50 text-xs px-3 py-2 rounded-t-md border-t border-x border-gray-200">
                       <div className="flex items-center">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#F85149] mr-1.5"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#DAAA3F] mr-1.5"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#3FB950] mr-1.5"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-1.5"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 mr-1.5"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-1.5"></div>
                         <HoverCard>
                           <HoverCardTrigger asChild>
-                            <span className="font-mono text-xs ml-2 cursor-help text-[#8B949E]">
-                              {allCodeFiles[selectedFile].filename}
+                            <span className="font-mono text-xs ml-2 cursor-help text-gray-500">
+                              {allCodeFiles[selectedFile].filename.split('/').pop() || ''}
                             </span>
                           </HoverCardTrigger>
-                          <HoverCardContent className="w-72 bg-[#161B22] border border-[#30363D] text-[#C9D1D9]">
+                          <HoverCardContent className="w-72 bg-white border border-gray-200 text-gray-700">
                             <div className="flex flex-col space-y-1.5">
-                              <h4 className="text-sm font-medium text-[#58A6FF]">
+                              <h4 className="text-sm font-medium text-blue-600">
                                 Language: {allCodeFiles[selectedFile].language}
                               </h4>
-                              <p className="text-xs text-[#8B949E]">
+                              <p className="text-xs text-gray-500">
                                 Look for comment bubbles next to important lines
                               </p>
                             </div>
@@ -409,7 +436,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                       </div>
                     </div>
                     
-                    <div className="relative border-x border-b border-[#30363D] rounded-b-md overflow-hidden">
+                    <div className="relative border-x border-b border-gray-200 rounded-b-md overflow-hidden">
                       <CodeRenderer
                         code={allCodeFiles[selectedFile].content}
                         language={allCodeFiles[selectedFile].language}
