@@ -183,6 +183,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-purple-50 font-sans overflow-hidden">
+      {/* Background overlay for React Flow */}
+      <div className="fixed inset-0 z-[-1] bg-gradient-to-b from-[#0D1117] to-[#161B22] opacity-90"></div>
       {/* Demo Mode Toggle - Always visible at the top */}
       <div className="absolute top-2 right-4 z-50 flex items-center space-x-2">
         <span className="text-xs font-medium text-slate-700">Demo Mode</span>

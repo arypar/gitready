@@ -61,9 +61,9 @@ function FileNode({ data, selected }: NodeProps) {
   return (
     <div 
       className={`w-64 rounded-md border-2 overflow-hidden transition-all duration-300 shadow-lg ${
-        selected ? 'scale-105 bg-[#1C2F45]/90' : 'bg-[#161B22]/90'
+        selected ? 'scale-105 bg-[#1C2F45]/95' : 'bg-[#161B22]/95'
       }`}
-      style={{ borderColor: color }}
+      style={{ borderColor: color, backdropFilter: 'blur(4px)' }}
       onClick={onClick}
     >
       <Handle type="target" position={Position.Left} className="w-3 h-3 bg-transparent" />
@@ -102,8 +102,8 @@ function SectionNode({ data }: NodeProps) {
   
   return (
     <div 
-      className="w-64 rounded-md border-2 overflow-hidden shadow-lg bg-[#161B22]/90 backdrop-blur-sm"
-      style={{ borderColor: color }}
+      className="w-64 rounded-md border-2 overflow-hidden shadow-lg bg-[#161B22]/95 backdrop-blur-sm"
+      style={{ borderColor: color, backdropFilter: 'blur(4px)' }}
     >
       <Handle type="target" position={Position.Left} className="w-3 h-3 bg-transparent" />
       
@@ -335,7 +335,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
     <div className="w-full">
       <div className={`w-full h-[500px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* React Flow visualization */}
-        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out`}>
+        <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative backdrop-blur-sm rounded-lg overflow-hidden border border-[#30363D]/30`}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -346,7 +346,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             connectionLineType={ConnectionLineType.Straight}
             fitView
             proOptions={{ hideAttribution: true }}
-            style={{ background: '#0D1117' }}
+            style={{ background: 'transparent' }}
           >
             <Background color="#30363D" gap={16} size={1} />
             <Controls showInteractive={false} className="bg-[#161B22] border-[#30363D] text-white" />
