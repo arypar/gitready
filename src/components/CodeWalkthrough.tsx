@@ -123,7 +123,10 @@ function FileNode({ data, selected }: NodeProps) {
         </div>
         <div className="flex flex-col items-end">
           <span className="text-xs text-gray-400 uppercase font-medium">{extension}</span>
-          <span className="text-xs text-gray-500">{data.lines} lines</span>
+          <div className="mt-1 text-xs inline-flex items-center bg-gray-100 px-2 py-0.5 rounded-full text-gray-600">
+            <span className="font-medium">{data.lines}</span>
+            <span className="ml-1 text-gray-500">lines</span>
+          </div>
         </div>
       </div>
       <Handle type="source" position={Position.Bottom} style={{ background: '#888' }} />
