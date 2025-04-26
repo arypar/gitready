@@ -311,20 +311,18 @@ export default function Home() {
           <AnimatePresence>
             {!isLoading && walkthrough.length > 0 && (
               <motion.div 
-                initial={{ opacity: 0, height: 0 }}
+                initial={{ opacity: 0 }}
                 animate={{ 
-                  opacity: showContent ? 1 : 0, 
-                  height: showContent ? 'auto' : 0,
+                  opacity: showContent ? 1 : 0,
                   transition: {
-                    opacity: { duration: 0.3, delay: 0.05 },
-                    height: { duration: 0.4 }
+                    opacity: { duration: 0.3, delay: 0.05 }
                   }
                 }}
-                exit={{ opacity: 0, height: 0 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="overflow-hidden bg-white rounded-3xl shadow-md border-0 mt-8"
+                className="w-full mt-8"
               >
-                <div className="h-auto overflow-auto">
+                <div className="w-full">
                   <CodeWalkthrough sections={walkthrough} />
                 </div>
               </motion.div>
