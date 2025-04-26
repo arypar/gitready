@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { vs } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Card } from '@/components/ui/card';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -154,29 +154,17 @@ const CodeRenderer = ({
             const annotation = codeWithAnnotations.getAnnotationForLine(lineNumber);
             
             return (
-              <tr key={lineIdx} className={hasAnnotation ? "bg-blue-50/50 backdrop-blur-sm" : "hover:bg-gray-50"}>
-                <td className="text-right py-0 pr-4 pl-4 border-r border-gray-200 text-gray-400 select-none w-[1%] font-mono text-xs">
+              <tr key={lineIdx} className={hasAnnotation ? "bg-blue-50 backdrop-blur-sm" : "hover:bg-gray-50"}>
+                <td className="text-right py-0 pr-4 pl-4 border-r border-gray-300 text-gray-600 select-none w-[1%] font-mono text-xs">
                   {lineNumber}
                 </td>
-                <td className="py-0.5 px-4 font-mono text-sm whitespace-pre">
-                  <SyntaxHighlighter
-                    language={language}
-                    style={vscDarkPlus}
-                    customStyle={{ 
-                      margin: 0,
-                      padding: 0, 
-                      background: 'transparent',
-                      fontSize: 'inherit',
-                      lineHeight: '1.5'
-                    }}
-                    wrapLines={true}
-                  >
-                    {line}
-                  </SyntaxHighlighter>
+                <td className="py-1 px-4 font-mono text-sm whitespace-pre text-gray-900">
+                  {/* Direct code display */}
+                  <pre className="m-0 p-0 text-gray-900 font-medium">{line}</pre>
                 </td>
-                <td className="w-[30%] pl-4 py-0 text-xs text-blue-600">
+                <td className="w-[30%] pl-4 py-0 text-xs text-gray-900">
                   {hasAnnotation && (
-                    <div className="bg-blue-50 p-2 rounded border-l-2 border-blue-400 shadow-sm backdrop-blur-sm">
+                    <div className="bg-blue-50 p-2 rounded border-l-2 border-blue-500 shadow-sm">
                       {annotation}
                     </div>
                   )}
@@ -369,7 +357,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             connectionLineType={ConnectionLineType.Straight}
             fitView
             proOptions={{ hideAttribution: true }}
-            style={{ background: 'white' }}
+            style={{ background: 'transparent' }}
           >
             <Background color="#ddd" gap={12} size={1} />
             <Controls showInteractive={false} className="bg-white border-gray-200 text-gray-700" />
@@ -405,29 +393,29 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                 
                 <div className="p-5 bg-white overflow-auto">
                   {allCodeFiles[selectedFile].sectionContent && (
-                    <div className="prose max-w-none mb-6 prose-p:text-gray-600 prose-headings:text-gray-800 prose-a:text-blue-500 prose-code:text-blue-700 prose-strong:text-gray-800 text-sm">
+                    <div className="prose max-w-none mb-6 text-black prose-p:text-black prose-headings:text-black prose-a:text-blue-600 prose-code:text-blue-700 prose-strong:text-black text-sm">
                       <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
                     </div>
                   )}
                   
                   <div className="relative">
-                    <div className="flex justify-between items-center bg-gray-50 text-xs px-3 py-2 rounded-t-md border-t border-x border-gray-200">
+                    <div className="flex justify-between items-center bg-gray-100 text-xs px-3 py-2 rounded-t-md border-t border-x border-gray-300">
                       <div className="flex items-center">
                         <div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-1.5"></div>
                         <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 mr-1.5"></div>
                         <div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-1.5"></div>
                         <HoverCard>
                           <HoverCardTrigger asChild>
-                            <span className="font-mono text-xs ml-2 cursor-help text-gray-500">
+                            <span className="font-mono text-xs ml-2 cursor-help text-gray-700">
                               {allCodeFiles[selectedFile].filename.split('/').pop() || ''}
                             </span>
                           </HoverCardTrigger>
-                          <HoverCardContent className="w-72 bg-white border border-gray-200 text-gray-700">
+                          <HoverCardContent className="w-72 bg-white border border-gray-300 text-gray-800">
                             <div className="flex flex-col space-y-1.5">
-                              <h4 className="text-sm font-medium text-blue-600">
+                              <h4 className="text-sm font-medium text-blue-700">
                                 Language: {allCodeFiles[selectedFile].language}
                               </h4>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-700">
                                 Look for comment bubbles next to important lines
                               </p>
                             </div>
@@ -436,7 +424,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                       </div>
                     </div>
                     
-                    <div className="relative border-x border-b border-gray-200 rounded-b-md overflow-hidden">
+                    <div className="relative border-x border-b border-gray-300 rounded-b-md overflow-hidden">
                       <CodeRenderer
                         code={allCodeFiles[selectedFile].content}
                         language={allCodeFiles[selectedFile].language}
