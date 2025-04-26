@@ -82,24 +82,21 @@ function FileNode({ data, selected }: NodeProps) {
   
   return (
     <div 
-      className={`bg-white rounded-lg shadow-md w-64 border transition-all duration-200 ${selected ? 'border-pink-500 scale-105' : 'border-gray-200'}`}
+      className={`bg-white rounded-lg shadow-md border transition-all duration-200 ${selected ? 'border-pink-500 scale-105' : 'border-gray-200'}`}
       onClick={data.onClick}
     >
-      <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between font-medium text-gray-700">
+      <div className="p-3 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="mr-2">{fileIcon}</span>
-          <span className="truncate max-w-[150px]">{shortName}</span>
+          <span className="mr-2 text-lg">{fileIcon}</span>
+          <div className="flex flex-col">
+            <span className="font-medium text-gray-800">{shortName}</span>
+            <span className="text-xs text-gray-500">{data.type}</span>
+          </div>
         </div>
-        <span className="text-xs text-gray-400 uppercase">{extension}</span>
-      </div>
-      <div className="p-3 bg-gray-50 text-xs text-gray-600 font-mono h-24 overflow-hidden">
-        <pre className="overflow-hidden line-clamp-5">
-          {data.preview}
-        </pre>
-      </div>
-      <div className="px-3 py-2 text-xs text-gray-500 flex justify-between">
-        <span>{data.type}</span>
-        <span>{data.lines} lines</span>
+        <div className="flex flex-col items-end">
+          <span className="text-xs text-gray-400 uppercase">{extension}</span>
+          <span className="text-xs text-gray-500">{data.lines} lines</span>
+        </div>
       </div>
       <Handle type="target" position={Position.Left} style={{ background: '#888' }} />
       <Handle type="source" position={Position.Right} style={{ background: '#888' }} />
@@ -276,18 +273,16 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
     // Create nodes for each file
     filesToUse.forEach((file, index) => {
       const lines = file.content.split('\n').length;
-      const preview = file.content.split('\n').slice(0, 5).join('\n');
       
       nodes.push({
         id: `file-${index}`,
         type: 'fileNode',
         position: { 
-          x: 100 + (index % 3) * 300, 
-          y: 100 + Math.floor(index / 3) * 200 
+          x: 100 + (index % 4) * 220, 
+          y: 100 + Math.floor(index / 4) * 120 
         },
         data: {
           filename: file.filename,
-          preview: preview,
           type: getNodeType(file.filename),
           lines: lines,
           language: file.language,
@@ -378,7 +373,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             <Background color="#aaa" gap={12} size={1} />
             <Controls showInteractive={false} className="bg-white border-gray-200 text-gray-700" />
             <Panel position="top-center" className="bg-white/50 text-gray-600 text-xs px-2 py-1 rounded border border-gray-200">
-              {selectedFile === null ? 'File Structure Flow Diagram' : 'Click on the same file again to close details'}
+              {selectedFile === null ? 'Simplified Code Structure Diagram' : 'Click on a file to view its contents'}
             </Panel>
           </ReactFlow>
         </div>
