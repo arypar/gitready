@@ -378,7 +378,7 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
 
   /* ---- 4. Render ------------------------------------------------ */
   return (
-    <div className="w-full bg-[#0D1117] text-[#C9D1D9] rounded-lg p-4">
+    <div className="w-full bg-[#0D1117] text-[#C9D1D9] rounded-lg p-4 flex flex-col space-y-4">
       {/* Container for Flow and Expanded View */}
       <div className={`w-full h-[800px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* Flow diagram container */}

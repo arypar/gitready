@@ -1,37 +1,46 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import './LoadingIndicator.css'; // Import CSS for the cube animation
 
 export default function LoadingIndicator() {
   return (
     <motion.div 
-      className="w-full max-w-md mx-auto bg-white rounded-3xl bubble-shadow overflow-hidden"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      className="w-full max-w-md mx-auto bg-[#161B22] rounded-2xl shadow-lg overflow-hidden border border-[#30363D]" /* Dark theme card */
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="p-6 flex flex-col items-center justify-center space-y-6">
-        {/* Loading dots */}
-        <div className="flex justify-center items-center space-x-2 my-4">
-          <span className="h-3 w-3 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-          <span className="h-3 w-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-          <span className="h-3 w-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+      <div className="p-8 flex flex-col items-center justify-center space-y-6">
+        {/* Rotating Cube Animation */}
+        <div className="scene">
+          <div className="cube-wrapper">
+            <div className="cube">
+              <div className="cube-faces cube-face-front"></div>
+              <div className="cube-faces cube-face-back"></div>
+              <div className="cube-faces cube-face-right"></div>
+              <div className="cube-faces cube-face-left"></div>
+              <div className="cube-faces cube-face-top"></div>
+              <div className="cube-faces cube-face-bottom"></div>
+            </div>
+          </div>
         </div>
         
         {/* Text */}
         <div className="space-y-2 text-center">
-          <p className="text-slate-800 text-base font-medium">
+          <p className="text-[#E6EDF3] text-lg font-semibold">
             Analyzing repository
           </p>
-          <p className="text-xs text-slate-500">
-            Processing code structure and generating documentation
+          <p className="text-sm text-[#8B949E]">
+            Processing code structure and generating documentation...
           </p>
         </div>
         
-        {/* Progress bar */}
-        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-          <div className="h-full bg-purple-600/70 rounded-full animate-progress"></div>
-        </div>
+        {/* Optional: Add a subtle progress-like element if desired */}
+        {/* <div className="w-full h-1 bg-[#30363D] rounded-full overflow-hidden">
+          <div className="h-full bg-purple-600 animate-pulse rounded-full"></div>
+        </div> */}
       </div>
     </motion.div>
   );

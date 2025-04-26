@@ -1,0 +1,45 @@
+.scene {
+  width: 60px;
+  height: 60px;
+  perspective: 600px;
+  margin-bottom: 1rem; /* Add some space below the cube */
+}
+
+.cube-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.cube {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transform-style: preserve-3d;
+  animation: rotateCube 6s infinite linear;
+}
+
+.cube-faces {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: rgba(168, 85, 247, 0.3); /* Purple with opacity */
+  border: 1px solid rgba(192, 132, 252, 0.5); /* Lighter purple border */
+  box-shadow: inset 0 0 10px rgba(192, 132, 252, 0.2);
+}
+
+.cube-face-front  { transform: rotateY(  0deg) translateZ(30px); }
+.cube-face-back   { transform: rotateY(180deg) translateZ(30px); }
+.cube-face-right  { transform: rotateY( 90deg) translateZ(30px); }
+.cube-face-left   { transform: rotateY(-90deg) translateZ(30px); }
+.cube-face-top    { transform: rotateX( 90deg) translateZ(30px); }
+.cube-face-bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+@keyframes rotateCube {
+  from {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+} 
