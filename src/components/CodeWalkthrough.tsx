@@ -269,8 +269,8 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
         id: `file-${index}`,
         type: 'fileNode',
         position: { 
-          x: 100 + (index % 4) * 220, 
-          y: 100 + Math.floor(index / 4) * 120 
+          x: 250, 
+          y: 100 + index * 180 
         },
         data: {
           filename: file.filename,
@@ -346,7 +346,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   
   return (
     <div className="w-full">
-      <div className={`w-full h-[500px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
+      <div className={`w-full h-[800px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* React Flow visualization */}
         <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative`}>
           <ReactFlow
