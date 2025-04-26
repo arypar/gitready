@@ -111,12 +111,8 @@ function FlowEdge({ sourceX, sourceY, targetX, targetY }: EdgeProps) {
       d={`M${sourceX} ${sourceY}L${targetX} ${targetY}`}
       className="react-flow__edge-path"
       strokeWidth={1.5}
-      stroke="#ccc"
-      strokeDasharray="5,5"
-      style={{
-        strokeDashoffset: 20,
-        animation: "flowAnimation 30s linear infinite"
-      }}
+      stroke="#aaa"
+      strokeDasharray="6,6"
     />
   );
 }
@@ -212,15 +208,6 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   const toggleFileSelection = (index: number) => {
     setSelectedFile(prev => prev === index ? null : index);
   };
-
-  // CSS for flow animation
-  const animationStyles = `
-    @keyframes flowAnimation {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
-  `;
   
   // Generate React Flow nodes and edges for the file diagram
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
@@ -316,8 +303,8 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
             id: `edge-${sourceIndex}-${targetIndex}`,
             source: `file-${sourceIndex}`,
             target: `file-${targetIndex}`,
-            type: 'flowEdge',
-            animated: true
+            animated: true,
+            style: { stroke: '#aaa', strokeWidth: 1.5, strokeDasharray: '5,5' }
           });
         }
       });
@@ -359,7 +346,6 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
   
   return (
     <div className="w-full">
-      <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       <div className={`w-full h-[500px] transition-all duration-500 ease-in-out ${selectedFile !== null ? 'flex items-start justify-between' : 'block'}`}>
         {/* React Flow visualization */}
         <div className={`${selectedFile !== null ? 'w-1/2' : 'w-full'} h-full transition-all duration-500 ease-in-out relative rounded-lg overflow-hidden border border-gray-200`}>
