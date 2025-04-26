@@ -180,29 +180,13 @@ export default function Home() {
     }
   };
 
-  // Logo elements with emoji
-  const logoTitle = (
-    <div className="flex items-center gap-2">
-      <div>
-        <span className="text-black font-extrabold tracking-tight">Git</span>
-        <span className="text-purple-600 font-extrabold tracking-tight">Freaky</span>
-      </div>
-      <motion.div 
-        whileHover={{ rotate: 10 }}
-        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      >
-        <span className="text-4xl">🐈‍⬛</span>
-      </motion.div>
-    </div>
-  );
-
   return (
-    <div className="flex flex-col min-h-screen bg-purple-50 font-sans overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-[#0D1117] text-[#C9D1D9] font-sans overflow-hidden">
       {/* Background overlay for React Flow */}
-      <div className="fixed inset-0 z-[-1] bg-gradient-to-b from-[#0D1117] to-[#161B22] opacity-90"></div>
+      <div className="fixed inset-0 z-[-1] bg-[#0D1117] opacity-90"></div>
       {/* Demo Mode Toggle - Always visible at the top */}
       <div className="absolute top-2 right-4 z-50 flex items-center space-x-2">
-        <span className="text-xs font-medium text-slate-700">Demo Mode</span>
+        <span className="text-xs font-medium text-[#8B949E]">Demo Mode</span>
         <CustomSwitch 
           checked={isDemoMode} 
           onCheckedChange={setIsDemoMode} 
@@ -213,7 +197,7 @@ export default function Home() {
         {/* Initial centered content - Animates out on first message */}
         {!hasSentFirstQuery && !isTransitioning && (
           <motion.div 
-            className="flex flex-col justify-center items-center absolute inset-0 z-10 bg-purple-50"
+            className="flex flex-col justify-center items-center absolute inset-0 z-10 bg-[#0D1117]"
             initial={{ opacity: 1 }}
             exit={{ 
               opacity: 0,
@@ -233,11 +217,24 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 layoutId="app-logo"
               >
-                <h1 className="text-4xl font-extrabold tracking-tight">{logoTitle}</h1>
+                <h1 className="text-4xl font-extrabold tracking-tight">
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <span className="text-[#E6EDF3] font-extrabold tracking-tight">Git</span>
+                      <span className="text-purple-400 font-extrabold tracking-tight">Freaky</span>
+                    </div>
+                    <motion.div 
+                      whileHover={{ rotate: 10 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <span className="text-4xl">🐈‍⬛</span>
+                    </motion.div>
+                  </div>
+                </h1>
               </motion.div>
               
               <motion.p 
-                className="text-xl text-slate-600 text-center mt-2"
+                className="text-xl text-[#8B949E] text-center mt-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
@@ -248,102 +245,84 @@ export default function Home() {
             
             {/* Chat input for initial screen */}
             <div className="w-full max-w-xl px-4">
-              <motion.div layoutId="chat-input">
-                <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
-              </motion.div>
+              <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
             </div>
-            
-            {isDemoMode && (
-              <div className="mt-2 text-center">
-                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-600 rounded-full">
-                  Demo Mode Active
-                </span>
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
       
-      {/* Fixed form at the top - Animates in after first query */}
-      <motion.div 
-        className="sticky top-0 z-20 bg-purple-50 pt-6 pb-3 px-4 md:pt-8 mt-2 md:mt-0"
-        initial={!hasSentFirstQuery && !isTransitioning ? { opacity: 0 } : { opacity: 1 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="max-w-xl mx-auto">
-          {/* Small logo - only visible after first query */}
-          {(hasSentFirstQuery || isTransitioning) && (
-            <motion.div 
-              className="flex items-center justify-center gap-1 mb-2"
-              layoutId="app-logo"
-            >
-              <h3 className="text-lg font-bold tracking-tight">{logoTitle}</h3>
+      {/* Main content area (appears after first query) */}
+      <div className="flex flex-col flex-grow p-4 md:p-6 space-y-4">
+        {/* Top section: Logo and Input Form */}
+        {(hasSentFirstQuery || isTransitioning) && (
+          <motion.div 
+            className="flex items-center justify-between w-full mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div layoutId="app-logo">
+              <h1 className="text-2xl font-extrabold tracking-tight">
+                <div className="flex items-center gap-2">
+                  <div>
+                    <span className="text-[#E6EDF3] font-extrabold tracking-tight">Git</span>
+                    <span className="text-purple-400 font-extrabold tracking-tight">Freaky</span>
+                  </div>
+                  <motion.div 
+                    whileHover={{ rotate: 10 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <span className="text-3xl">🐈‍⬛</span>
+                  </motion.div>
+                </div>
+              </h1>
             </motion.div>
-          )}
-          
-          {/* Chat input for transitioned state */}
-          {(hasSentFirstQuery || isTransitioning) && (
-            <motion.div layoutId="chat-input">
+            <div className="w-full max-w-xl">
               <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
-      
-      {/* Main Content Area */}
-      <div className="flex-1 p-4 pb-28 pt-4">
-        {/* Loading and Error Messages - Keep centered */}
-        <div className="max-w-xl mx-auto flex flex-col gap-4">
-          {/* Loading Indicator */}
-          <AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Bottom section: Loading/Error/Walkthrough */}
+        <div className="flex-grow flex items-center justify-center">
+          <AnimatePresence mode="wait">
             {isLoading && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-8"
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
               >
                 <LoadingIndicator />
               </motion.div>
             )}
-          </AnimatePresence>
-          
-          {/* Error Message */}
-          <AnimatePresence>
-            {error && (
+            {!isLoading && error && (
               <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-8 p-4 bg-red-50 text-red-500 rounded-3xl border border-red-200"
+                key="error"
+                className="text-center text-red-400 bg-red-900/30 p-4 rounded-lg border border-red-600/50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
               >
-                <p className="font-medium">Error</p>
-                <p className="text-sm mt-1">{error}</p>
+                <p className="font-medium">Error:</p>
+                <p>{error}</p>
+              </motion.div>
+            )}
+            {!isLoading && !error && walkthrough.length > 0 && showContent && (
+              <motion.div 
+                key="walkthrough"
+                className="w-full h-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <CodeWalkthrough sections={walkthrough} />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-          
-        {/* Walkthrough Content - Full width */}
-        <AnimatePresence>
-          {!isLoading && walkthrough.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ 
-                opacity: showContent ? 1 : 0,
-                transition: {
-                  opacity: { duration: 0.3, delay: 0.05 }
-                }
-              }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full mt-8 px-4 md:px-6 lg:px-8"
-            >
-              <CodeWalkthrough sections={walkthrough} />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   );

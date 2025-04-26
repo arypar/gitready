@@ -116,7 +116,7 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
   return (
     <div className="w-full max-w-xl mx-auto">
       <motion.div 
-        className="relative bg-white rounded-full border border-slate-200 shadow-md"
+        className="relative bg-[#21262D] rounded-full border border-[#30363D] shadow-md text-white"
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ 
@@ -125,14 +125,14 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
           delay: 0.2
         }}
       >
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400">
           <Github className="w-5 h-5" />
         </div>
         <Input
           value={input}
           onChange={onInputChange}
           placeholder={placeholders[placeholderIndex]}
-          className="pl-10 pr-12 py-6 text-base text-black bg-transparent border-none placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full"
+          className="pl-10 pr-12 py-6 text-base text-[#E6EDF3] bg-transparent border-none placeholder:text-[#6E7681] focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full"
           style={{
             opacity: isPlaceholderVisible ? 1 : 0,
             transition: "opacity 300ms ease-in-out",
@@ -165,7 +165,7 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
       <AnimatePresence>
         {errorMessage && (
           <motion.div 
-            className="flex items-center px-3 py-2 mt-2 bg-amber-50 text-amber-700 text-xs rounded-lg"
+            className="flex items-center px-3 py-2 mt-2 bg-red-900/40 text-red-300 text-xs rounded-lg border border-red-600/30"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -183,7 +183,7 @@ export default function ChatInputForm({ onSubmit, isLoading }: ChatInputFormProp
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.3 }}
       >
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[#8B949E]">
           {isLoading ? 'Analysis in progress...' : 'Enter a GitHub repository URL or documentation link'}
         </p>
       </motion.div>

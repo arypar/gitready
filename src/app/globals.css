@@ -118,8 +118,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-color: #0D1117;
-    color: #E6EDF3;
   }
 }
 
@@ -266,11 +264,13 @@
 
 .floating-input input::placeholder {
   transition: opacity 0.3s, transform 0.3s;
+  color: #6E7681;
 }
 
 .floating-input:focus-within input::placeholder {
-  opacity: 0.6;
+  opacity: 0.8;
   transform: translateY(-6px);
+  color: #8B949E;
 }
 
 .url-input-hover-glow {
@@ -303,11 +303,11 @@ body {
 }
 
 .chat-bubble-user {
-  @apply bg-blue-500 text-white inline-block p-3 rounded-2xl rounded-tr-sm;
+  @apply bg-blue-600 text-white inline-block p-3 rounded-2xl rounded-tr-sm;
 }
 
 .chat-bubble-assistant {
-  @apply bg-gray-100 text-gray-800 inline-block p-3 rounded-2xl rounded-tl-sm;
+  @apply bg-[#21262D] text-[#C9D1D9] inline-block p-3 rounded-2xl rounded-tl-sm;
 }
 
 /* Animation for background effect */
