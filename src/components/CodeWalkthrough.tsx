@@ -147,15 +147,23 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
 
   return (
     <div className="w-full">
-      {/* Flow chart visualization */}
-      <div ref={deckRef} className="relative w-full min-h-[400px] mb-10">
+      {/* Walkthrough container - uses a layout that shifts files left when a file is selected */}
+      <div ref={deckRef} className="relative w-full mb-10">
         {allCodeFiles.length === 0 ? (
           <div className="w-full text-center py-10 text-slate-700">
             No code files available
           </div>
         ) : (
-          <div className="w-full flex items-center justify-center">
-            <div className="relative w-full max-w-5xl">
+          <div className={`w-full flex items-start transition-all duration-500 ease-in-out ${selectedFile !== null ? 'justify-between' : 'justify-center'}`}>
+            {/* Files grid - shifts left and becomes narrower when a file is selected */}
+            <motion.div 
+              className="relative"
+              animate={{ 
+                width: selectedFile !== null ? '40%' : '100%',
+                maxWidth: selectedFile !== null ? '500px' : '1200px',
+              }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
               <div className="flex flex-wrap justify-center gap-4 my-8">
                 {/* Simple grid layout for files */}
                 {allCodeFiles.map((file, index) => {
@@ -174,12 +182,13 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                     <motion.div 
                       key={`file-${index}`}
                       className="cursor-pointer"
-                      style={{ width: '240px' }}
+                      style={{ width: selectedFile !== null ? '160px' : '240px' }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ 
                         opacity: 1, 
                         y: 0,
                         scale: isSelected ? 1.05 : isHovered ? 1.02 : 1,
+                        width: selectedFile !== null ? '160px' : '240px',
                         boxShadow: isSelected || isHovered ? '0 8px 20px rgba(0,0,0,0.3)' : '0 2px 10px rgba(0,0,0,0.2)'
                       }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -203,7 +212,7 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                         </div>
                         
                         {/* Card preview */}
-                        <div className="h-[80px] overflow-hidden p-2">
+                        <div className={`overflow-hidden p-2 transition-all duration-300 ${selectedFile !== null ? 'h-[60px]' : 'h-[80px]'}`}>
                           <pre className="text-[9px] font-mono text-[#8B949E] overflow-hidden line-clamp-4">
                             <code>{file.content.split('\n').slice(0, 4).join('\n')}</code>
                           </pre>
@@ -220,98 +229,98 @@ export default function CodeWalkthrough({ sections }: CodeWalkthroughProps) {
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
+            
+            {/* Selected file detail view - slides in from right */}
+            <AnimatePresence>
+              {selectedFile !== null && (
+                <motion.div
+                  initial={{ opacity: 0, x: 100, width: 0 }}
+                  animate={{ opacity: 1, x: 0, width: '55%' }}
+                  exit={{ opacity: 0, x: 100, width: 0 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative max-w-[800px]"
+                >
+                  <Card className="w-full border border-[#30363D] bg-[#0D1117]/80 backdrop-blur-md rounded-xl overflow-hidden shadow-2xl">
+                    <div className="absolute top-3 right-3 z-10">
+                      <button 
+                        onClick={() => setSelectedFile(null)}
+                        className="p-1.5 rounded-full bg-[#161B22]/80 text-[#8B949E] border border-[#30363D] hover:bg-[#1C2F45]/80 hover:text-[#E6EDF3] transition-all duration-200"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    
+                    {selectedFile !== null && allCodeFiles[selectedFile] && (
+                      <>
+                        <div className="p-5 border-b border-[#30363D] bg-gradient-to-r from-[#161B22]/90 to-[#0D1117]/90">
+                          <div className="flex items-center">
+                            <div 
+                              className="w-3 h-3 rounded-full mr-2.5" 
+                              style={{ backgroundColor: getFileColor(allCodeFiles[selectedFile].filename) }}
+                            ></div>
+                            <h2 className="text-lg font-medium text-[#E6EDF3] font-mono">
+                              {allCodeFiles[selectedFile].filename}
+                            </h2>
+                          </div>
+                          {allCodeFiles[selectedFile].sectionTitle && (
+                            <p className="mt-2 text-sm text-[#8B949E]">
+                              From section: {allCodeFiles[selectedFile].sectionTitle}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div className="p-5 bg-gradient-to-b from-[#0D1117]/95 to-[#0D1117]/80">
+                          {allCodeFiles[selectedFile].sectionContent && (
+                            <div className="prose prose-invert max-w-none mb-6 prose-p:text-[#C9D1D9] prose-headings:text-[#E6EDF3] prose-a:text-[#58A6FF] prose-code:text-[#79C0FF] prose-strong:text-[#E6EDF3] text-sm">
+                              <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
+                            </div>
+                          )}
+                          
+                          <div className="relative">
+                            <div className="flex justify-between items-center bg-[#161B22] text-xs px-3 py-2 rounded-t-md border-t border-x border-[#30363D]">
+                              <div className="flex items-center">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#F85149] mr-1.5"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#DAAA3F] mr-1.5"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#3FB950] mr-1.5"></div>
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <span className="font-mono text-xs ml-2 cursor-help text-[#8B949E]">
+                                      {allCodeFiles[selectedFile].filename}
+                                    </span>
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-72 bg-[#161B22] border border-[#30363D] text-[#C9D1D9]">
+                                    <div className="flex flex-col space-y-1.5">
+                                      <h4 className="text-sm font-medium text-[#58A6FF]">
+                                        Language: {allCodeFiles[selectedFile].language}
+                                      </h4>
+                                      <p className="text-xs text-[#8B949E]">
+                                        Look for comment bubbles next to important lines
+                                      </p>
+                                    </div>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              </div>
+                            </div>
+                            
+                            <div className="relative border-x border-b border-[#30363D] rounded-b-md overflow-hidden">
+                              <CodeRenderer
+                                code={allCodeFiles[selectedFile].content}
+                                language={allCodeFiles[selectedFile].language}
+                                annotations={allCodeFiles[selectedFile].annotations}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>
-      
-      {/* Selected file detail view - centered in the display */}
-      <AnimatePresence>
-        {selectedFile !== null && allCodeFiles[selectedFile] && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.3 }}
-            className="mt-6 relative max-w-3xl mx-auto"
-          >
-            <Card className="w-full mx-auto border border-[#30363D] bg-[#0D1117]/80 backdrop-blur-md rounded-xl overflow-hidden shadow-2xl">
-              <div className="absolute top-3 right-3 z-10">
-                <button 
-                  onClick={() => setSelectedFile(null)}
-                  className="p-1.5 rounded-full bg-[#161B22]/80 text-[#8B949E] border border-[#30363D] hover:bg-[#1C2F45]/80 hover:text-[#E6EDF3] transition-all duration-200"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-              
-              {selectedFile !== null && allCodeFiles[selectedFile] && (
-                <>
-                  <div className="p-5 border-b border-[#30363D] bg-gradient-to-r from-[#161B22]/90 to-[#0D1117]/90">
-                    <div className="flex items-center">
-                      <div 
-                        className="w-3 h-3 rounded-full mr-2.5" 
-                        style={{ backgroundColor: getFileColor(allCodeFiles[selectedFile].filename) }}
-                      ></div>
-                      <h2 className="text-lg font-medium text-[#E6EDF3] font-mono">
-                        {allCodeFiles[selectedFile].filename}
-                      </h2>
-                    </div>
-                    {allCodeFiles[selectedFile].sectionTitle && (
-                      <p className="mt-2 text-sm text-[#8B949E]">
-                        From section: {allCodeFiles[selectedFile].sectionTitle}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="p-5 bg-gradient-to-b from-[#0D1117]/95 to-[#0D1117]/80">
-                    {allCodeFiles[selectedFile].sectionContent && (
-                      <div className="prose prose-invert max-w-none mb-6 prose-p:text-[#C9D1D9] prose-headings:text-[#E6EDF3] prose-a:text-[#58A6FF] prose-code:text-[#79C0FF] prose-strong:text-[#E6EDF3] text-sm">
-                        <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
-                      </div>
-                    )}
-                    
-                    <div className="relative">
-                      <div className="flex justify-between items-center bg-[#161B22] text-xs px-3 py-2 rounded-t-md border-t border-x border-[#30363D]">
-                        <div className="flex items-center">
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#F85149] mr-1.5"></div>
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#DAAA3F] mr-1.5"></div>
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#3FB950] mr-1.5"></div>
-                          <HoverCard>
-                            <HoverCardTrigger asChild>
-                              <span className="font-mono text-xs ml-2 cursor-help text-[#8B949E]">
-                                {allCodeFiles[selectedFile].filename}
-                              </span>
-                            </HoverCardTrigger>
-                            <HoverCardContent className="w-72 bg-[#161B22] border border-[#30363D] text-[#C9D1D9]">
-                              <div className="flex flex-col space-y-1.5">
-                                <h4 className="text-sm font-medium text-[#58A6FF]">
-                                  Language: {allCodeFiles[selectedFile].language}
-                                </h4>
-                                <p className="text-xs text-[#8B949E]">
-                                  Look for comment bubbles next to important lines
-                                </p>
-                              </div>
-                            </HoverCardContent>
-                          </HoverCard>
-                        </div>
-                      </div>
-                      
-                      <div className="relative border-x border-b border-[#30363D] rounded-b-md overflow-hidden">
-                        <CodeRenderer
-                          code={allCodeFiles[selectedFile].content}
-                          language={allCodeFiles[selectedFile].language}
-                          annotations={allCodeFiles[selectedFile].annotations}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
       
       {/* Visual guide to instruct users */}
       {selectedFile === null && allCodeFiles.length > 0 && (
