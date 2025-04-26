@@ -2,8 +2,45 @@
 
 import { motion } from 'framer-motion';
 import './LoadingIndicator.css'; // Import CSS for the cube animation
+import { useState, useEffect } from 'react'; // Import useState and useEffect
+
+const loadingPhrases = [
+  {
+    title: "Gitting your repo ready...",
+    subtitle: "Fetching files faster than a git commit!"
+  },
+  {
+    title: "Gitting the AI warmed up...",
+    subtitle: "It's gitting smarter by the second!"
+  },
+  {
+    title: "Gitting dependency insights...",
+    subtitle: "Hope this doesn\'t cause merge conflicts... Git it?"
+  },
+  {
+    title: "Gitting code intel...",
+    subtitle: "Almost ready to show you the code story. Git excited!"
+  },
+  {
+    title: "Gitting the final picture...",
+    subtitle: "Git ready for a masterpiece!"
+  }
+];
 
 export default function LoadingIndicator() {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+
+  // Cycle through phrases every 3.5 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setPhraseIndex((prevIndex) => (prevIndex + 1) % loadingPhrases.length);
+    }, 3500);
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
+
+  const currentPhrase = loadingPhrases[phraseIndex];
+
   return (
     <div className="p-8 flex flex-col items-center justify-center space-y-6">
       {/* Rotating Cube Animation */}
@@ -20,13 +57,13 @@ export default function LoadingIndicator() {
         </div>
       </div>
       
-      {/* Text */}
+      {/* Text - Updated to cycle */}
       <div className="space-y-2 text-center">
         <p className="text-[#E6EDF3] text-lg font-semibold">
-          Gitting your repo ready...
+          {currentPhrase.title}
         </p>
         <p className="text-sm text-[#8B949E]">
-          Parsing code structure and preparing your walkthrough.
+          {currentPhrase.subtitle}
         </p>
       </div>
       
