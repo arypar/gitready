@@ -244,21 +244,19 @@ export async function POST(request: NextRequest) {
     }
     
     // 7. Generate prompt for Claude
-    const promptHeader = `
+    const prompt = `
     I have a GitHub repository at ${url}. Please analyze these most important files and create a code walkthrough with annotations.
 
     Here are the files:
-    `;
     
-    const filesContent = validFiles.map((file) => `
+    ${validFiles.map((file) => `
     File: ${file.path}
     
     \`\`\`
     ${file.compressed}
     \`\`\`
-    `).join('\n\n');
+    `).join('\n\n')}
     
-    const promptFooter = `
     Create a JSON response with this exact structure:
     [
       {
@@ -278,11 +276,25 @@ export async function POST(request: NextRequest) {
                 "line": 3,
                 "comment": "Clear, concise explanation of this important line"
               }
+            ],
+            "relationships": [
+              {
+                "imports": ["otherFile.ext"],
+                "importedBy": ["anotherFile.ext"],
+                "functionallyRelatedTo": ["relatedFile.ext"]
+              }
             ]
           }
         ]
       }
     ]
+    
+    For the "relationships" field, analyze import statements, function calls, and other connections between files to determine:
+     - "imports": Files that this file directly imports/requires
+     - "importedBy": Files that import/require this file 
+     - "functionallyRelatedTo": Files that share similar functionality or are strongly coupled
+    
+    Only include relationship entries when you can determine them with high confidence.
     
     Important guidelines:
     1. Focus on the ${validFiles.length} most important files only
@@ -293,16 +305,16 @@ export async function POST(request: NextRequest) {
     6. Annotations should be 1-3 sentences, written in a blue sidebar comment style
     7. IMPORTANT: The line numbers you provide should be based on the code I've shown you, which has been compressed
     8. Make sure your response is valid JSON with no trailing commas or syntax errors
+    9. IMPORTANT: Include accurate file relationship data as this will be used to visualize connections between files
     
     Return ONLY the JSON array.
     `;
     
     // Log token usage breakdown
     console.log("===== TOKEN USAGE BREAKDOWN =====");
-    console.log(`Prompt header: ${countTokens(promptHeader)} tokens`);
-    console.log(`Files content: ${countTokens(filesContent)} tokens`);
-    console.log(`Prompt footer: ${countTokens(promptFooter)} tokens`);
-    console.log(`Total prompt: ${countTokens(promptHeader + filesContent + promptFooter)} tokens`);
+    console.log(`Prompt header: ${countTokens(prompt)} tokens`);
+    console.log(`Files content: ${countTokens(prompt)} tokens`);
+    console.log(`Total prompt: ${countTokens(prompt)} tokens`);
     
     // Log individual file token counts
     console.log("\n===== FILE TOKEN COUNTS =====");
@@ -311,8 +323,6 @@ export async function POST(request: NextRequest) {
       const percentage = (fileTokens / totalTokens * 100).toFixed(2);
       console.log(`${file.path}: ${fileTokens} tokens (${percentage}% of total)`);
     });
-    
-    const prompt = promptHeader + filesContent + promptFooter;
     
     // 8. Call Claude API
     const response = await anthropic.messages.create({

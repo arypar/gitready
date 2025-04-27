@@ -38,6 +38,11 @@ interface CodeWithAnnotations {
     line: number;
     comment: string;
   }[];
+  relationships?: {
+    imports?: string[];
+    importedBy?: string[];
+    functionallyRelatedTo?: string[];
+  };
 }
 
 interface CodeWalkthroughProps {
@@ -135,6 +140,113 @@ const parseImports = (code: string): string[] => {
     }
   }
   return Array.from(imports);
+};
+
+// Function to create relationship-based edges
+const createRelationshipEdges = (nodes: Node[], codeFiles: any[]): Edge[] => {
+  const edges: Edge[] = [];
+  const addedEdges = new Set<string>();
+  const fileIdMap = new Map<string, string>(); // Maps filename to node id
+  
+  // Build a map of filenames to node ids
+  nodes.forEach((node) => {
+    const filename = node.data.filename;
+    const shortName = filename.split('/').pop();
+    if (shortName) {
+      fileIdMap.set(shortName, node.id);
+      // Also map the full path
+      fileIdMap.set(filename, node.id);
+    }
+  });
+  
+  // Create edges based on file relationships
+  codeFiles.forEach((file) => {
+    if (!file.relationships) return;
+    
+    const sourceId = fileIdMap.get(file.filename);
+    if (!sourceId) return;
+    
+    // Handle imports
+    if (file.relationships.imports) {
+      file.relationships.imports.forEach((importedFile: string) => {
+        const targetId = fileIdMap.get(importedFile);
+        if (targetId && targetId !== sourceId) {
+          const edgeKey = `${sourceId}-${targetId}`;
+          if (!addedEdges.has(edgeKey)) {
+            addedEdges.add(edgeKey);
+            edges.push({
+              id: `edge-import-${sourceId}-${targetId}`,
+              source: sourceId,
+              target: targetId,
+              animated: true,
+              type: 'flowEdge',
+              style: { stroke: '#58A6FF', strokeWidth: 2 }, // Blue for imports
+              label: 'imports',
+              labelStyle: { fill: '#58A6FF', fontSize: 10 },
+              labelBgStyle: { fill: '#21262D', fillOpacity: 0.8 }
+            });
+          }
+        }
+      });
+    }
+    
+    // Handle imported by
+    if (file.relationships.importedBy) {
+      file.relationships.importedBy.forEach((importingFile: string) => {
+        const targetId = fileIdMap.get(importingFile);
+        if (targetId && targetId !== sourceId) {
+          const edgeKey = `${targetId}-${sourceId}`; // Note: direction is reversed
+          if (!addedEdges.has(edgeKey)) {
+            addedEdges.add(edgeKey);
+            edges.push({
+              id: `edge-importedby-${targetId}-${sourceId}`,
+              source: targetId, // Importer is source
+              target: sourceId, // This file is target
+              animated: false,
+              type: 'flowEdge',
+              style: { stroke: '#3FB950', strokeWidth: 1.5 }, // Green for imported by
+              label: 'uses',
+              labelStyle: { fill: '#3FB950', fontSize: 10 },
+              labelBgStyle: { fill: '#21262D', fillOpacity: 0.8 }
+            });
+          }
+        }
+      });
+    }
+    
+    // Handle functionally related
+    if (file.relationships.functionallyRelatedTo) {
+      file.relationships.functionallyRelatedTo.forEach((relatedFile: string) => {
+        const targetId = fileIdMap.get(relatedFile);
+        if (targetId && targetId !== sourceId) {
+          // Create a consistent key regardless of order
+          const nodes = [sourceId, targetId].sort();
+          const edgeKey = `${nodes[0]}-${nodes[1]}-related`;
+          
+          if (!addedEdges.has(edgeKey)) {
+            addedEdges.add(edgeKey);
+            edges.push({
+              id: `edge-related-${sourceId}-${targetId}`,
+              source: sourceId,
+              target: targetId,
+              animated: false,
+              type: 'flowEdge',
+              style: { 
+                stroke: '#A371F7', 
+                strokeWidth: 1.5,
+                strokeDasharray: '5,5'
+              }, // Purple dashed for related
+              label: 'related',
+              labelStyle: { fill: '#A371F7', fontSize: 10 },
+              labelBgStyle: { fill: '#21262D', fillOpacity: 0.8 }
+            });
+          }
+        }
+      });
+    }
+  });
+  
+  return edges;
 };
 
 /* ------------------------------------------------------------------ */
@@ -379,15 +491,73 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
     
     // Restore simple sequential edges for now (layout is complex)
     edges.length = 0; // Clear existing edges
-    for (let i = 0; i < nodes.length - 1; i++) {
-      edges.push({
-        id: `edge-${i}-${i + 1}`,
-        source: `file-${i}`,
-        target: `file-${i + 1}`,
-        animated: true,
-        type: 'flowEdge', // Ensure custom edge type is used
-        style: { stroke: '#aaa', strokeWidth: 1.5, strokeDasharray: '5,5' } // Restore original styling
-      });
+    
+    // Generate random connections
+    const numConnections = Math.min(nodes.length * 2, Math.floor(nodes.length * (nodes.length - 1) / 2)); // Limit total number of edges
+    const addedEdges = new Set(); // Track edges we've already added
+    
+    // Create random connections
+    for (let i = 0; i < numConnections; i++) {
+      // Get two random node indices
+      const sourceIdx = Math.floor(Math.random() * nodes.length);
+      let targetIdx;
+      
+      // Make sure target is different from source
+      do {
+        targetIdx = Math.floor(Math.random() * nodes.length);
+      } while (targetIdx === sourceIdx);
+      
+      // Create a unique edge identifier (always put smaller index first for consistency)
+      const minIdx = Math.min(sourceIdx, targetIdx);
+      const maxIdx = Math.max(sourceIdx, targetIdx);
+      const edgeKey = `${minIdx}-${maxIdx}`;
+      
+      // Only add if this edge doesn't already exist
+      if (!addedEdges.has(edgeKey)) {
+        addedEdges.add(edgeKey);
+        
+        // Random colors
+        const colors = ['#58A6FF', '#79C0FF', '#3FB950', '#A371F7', '#F778BA', '#DAAA3F', '#F85149'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        edges.push({
+          id: `edge-${sourceIdx}-${targetIdx}`,
+          source: `file-${sourceIdx}`,
+          target: `file-${targetIdx}`,
+          animated: Math.random() > 0.7, // Randomly animate some edges
+          type: 'flowEdge',
+          style: { 
+            stroke: color, 
+            strokeWidth: 1.5, 
+            strokeDasharray: Math.random() > 0.5 ? '5,5' : undefined 
+          }
+        });
+      }
+    }
+    
+    // Ensure all nodes have at least one connection
+    for (let i = 0; i < nodes.length; i++) {
+      // Check if this node has any connections
+      const hasConnection = edges.some(edge => 
+        edge.source === `file-${i}` || edge.target === `file-${i}`
+      );
+      
+      // If not, add a connection to a random node
+      if (!hasConnection && nodes.length > 1) {
+        let targetIdx;
+        do {
+          targetIdx = Math.floor(Math.random() * nodes.length);
+        } while (targetIdx === i);
+        
+        edges.push({
+          id: `edge-${i}-${targetIdx}`,
+          source: `file-${i}`,
+          target: `file-${targetIdx}`,
+          animated: true,
+          type: 'flowEdge',
+          style: { stroke: '#DAAA3F', strokeWidth: 1.5 }
+        });
+      }
     }
 
     return { nodes, edges };
