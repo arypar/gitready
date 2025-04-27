@@ -1,73 +1,77 @@
-# Code Onboarding Assistant
+# GitReady 🐈‍⬛
 
-A Next.js application that helps developers understand codebases quickly by providing interactive walkthroughs using Claude AI. The application allows users to submit public GitHub repository URLs or API documentation links and generates structured, comprehensive explanations of the code or API.
+GitReady uses AI to instantly generate visual code maps and explanations from GitHub repositories, helping developers git up to speed quickly.
 
-## Features
+## ✨ Features
 
-- Analyze public GitHub repositories to understand code structure and architecture
-- Process API documentation to create easy-to-understand guides
-- Interactive UI with expandable sections for different aspects of the codebase
-- Syntax-highlighted code examples with contextual explanations
-- Powered by Claude 3.5 Sonnet for intelligent code analysis
+*   **Visual Code Maps:** Interactive diagrams showing file relationships and dependencies (using React Flow).
+*   **AI-Generated Explanations:** Code snippets annotated with explanations powered by Anthropic's AI.
+*   **GitHub Repository Analysis:** Simply provide a GitHub URL to start the analysis.
+*   **Dark Theme:** Sleek and modern user interface.
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 20.x or later
-- npm or yarn
-- Anthropic API key (for Claude AI)
+*   Node.js (v18 or later recommended)
+*   npm or yarn
 
-### Installation
+### Installation & Setup
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env.local` file in the root directory with your Anthropic API key:
-   ```
-   ANTHROPIC_API_KEY=your_api_key_here
-   NEXT_PUBLIC_BASE_URL=http://localhost:3000
-   ```
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repo-url>
+    cd pearvc-anthropic-hack 
+    ```
 
-### Running the Application
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-To start the development server:
+3.  **Set up Environment Variables:**
 
-```bash
-npm run dev
-```
+    Create a file named `.env` in the root of the project and add the following variables:
 
-Then open [http://localhost:3000](http://localhost:3000) in your browser.
+    ```env
+    # Required: Your API key from Anthropic (https://console.anthropic.com/settings/keys)
+    ANTHROPIC_API_KEY=your_anthropic_api_key_here
 
-## Usage
+    # Required: The base URL where your Next.js app will run locally 
+    # (usually http://localhost:3000)
+    NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
-1. Choose between analyzing a GitHub repository or API documentation
-2. Enter the public URL of the repository or API docs
-3. Submit the form and wait for the analysis to complete
-4. Browse through the generated interactive walkthrough with code snippets and explanations
+    # Optional: A GitHub Personal Access Token (PAT) 
+    # Recommended to avoid rate limits when fetching repository data. 
+    # Needs 'repo' scope if accessing private repositories.
+    # Generate one here: https://github.com/settings/tokens
+    GITHUB_TOKEN=your_github_pat_here 
+    ```
 
-## Tech Stack
+    **Important:** Do **not** commit your `.env` file to version control. Add it to your `.gitignore` file if it's not already there.
 
-- Next.js 14.x with App Router
-- TypeScript
-- Tailwind CSS
-- Claude AI (Anthropic API)
-- React Markdown for content display
-- Syntax highlighting for code snippets
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    ```
 
-## Learn More
+5.  Open [http://localhost:3000](http://localhost:3000) (or your configured `NEXT_PUBLIC_BASE_URL`) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+*   **Frontend:** Next.js, React, TypeScript, Tailwind CSS, Shadcn UI, Framer Motion
+*   **Visualization:** React Flow
+*   **AI:** Anthropic API
+*   **GitHub Interaction:** Octokit
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🤝 Contributing
 
-## Deploy on Vercel
+Contributions are welcome! Please feel free to open an issue or submit a pull request.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is currently unlicensed.
