@@ -333,17 +333,20 @@ function CodeRenderer({
           {lines.map((ln, idx) => {
             const n = idx + 1;
             const ann = annotatedLines.has(n) ? getAnnotation(n) : null;
+            const codeRowBg = ann ? 'bg-[#1C2F45]/50' : 'hover:bg-[#161B22]/50';
+            const borderClass = ann ? '' : 'border-b border-[#30363D]';
+
             return (
               <React.Fragment key={idx}>
-                <tr className={ann ? 'bg-[#1C2F45]/50' : 'hover:bg-[#161B22]/50'}>
+                <tr>
                   <td 
-                    className={`text-right py-0 pr-4 pl-4 border-r border-[#30363D] text-[#6E7681] select-none w-[1%] font-mono text-xs ${ann ? '' : 'border-b border-[#30363D]'}`}
+                    className={`text-right py-0 pr-4 pl-4 border-r border-[#30363D] text-[#6E7681] select-none w-[1%] font-mono text-xs ${borderClass} ${codeRowBg}`}
                     rowSpan={1}
                   >
                     {n}
                   </td>
                   <td 
-                    className={`py-0.5 px-4 font-mono text-sm whitespace-pre ${ann ? '' : 'border-b border-[#30363D]'}`}
+                    className={`py-0.5 px-4 font-mono text-sm whitespace-pre ${borderClass} ${codeRowBg}`}
                     colSpan={ann ? 1 : 2}
                   >
                     <SyntaxHighlighter
@@ -361,13 +364,13 @@ function CodeRenderer({
                       {ln}
                     </SyntaxHighlighter>
                   </td>
-                  {!ann && <td className="w-2/5 border-b border-[#30363D]"></td>}
+                  {!ann && <td className={`w-2/5 border-b border-[#30363D] ${codeRowBg}`}></td>}
                 </tr>
 
                 {ann && (
-                  <tr className="bg-[#1C2F45]/70">
-                    <td className="border-r border-[#30363D]"></td>
-                    <td colSpan={2} className="px-4 py-1 border-b border-[#30363D]">
+                  <tr>
+                    <td className="border-r border-[#30363D] bg-[#1C2F45]/70"></td>
+                    <td colSpan={2} className={`px-4 py-1 border-b border-[#30363D] bg-[#1C2F45]/70`}>
                       <div className="text-xs text-[#58A6FF] p-1 bg-[#1F2937]/50 rounded border-l-2 border-[#388BFD]">
                         {ann}
                       </div>
