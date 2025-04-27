@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vs } from 'react-syntax-highlighter/dist/cjs/styles/prism';
@@ -221,39 +222,47 @@ function CodeRenderer({
             const n = idx + 1;
             const ann = annotatedLines.has(n) ? getAnnotation(n) : null;
             return (
-              <tr
-                key={idx}
-                className={
-                  ann ? 'bg-[#1C2F45]/70' : 'hover:bg-[#161B22]/50'
-                }
-              >
-                <td className="text-right py-0 pr-4 pl-4 border-r border-[#30363D] text-[#6E7681] select-none w-[1%] font-mono text-xs">
-                  {n}
-                </td>
-                <td className="py-0.5 px-4 font-mono text-sm whitespace-pre">
-                  <SyntaxHighlighter
-                    language={language}
-                    style={vscDarkPlus}
-                    customStyle={{
-                      margin: 0,
-                      padding: 0,
-                      background: 'transparent',
-                      fontSize: 'inherit',
-                      lineHeight: 1.5,
-                    }}
-                    wrapLines
+              <React.Fragment key={idx}>
+                <tr className={ann ? 'bg-[#1C2F45]/50' : 'hover:bg-[#161B22]/50'}>
+                  <td 
+                    className={`text-right py-0 pr-4 pl-4 border-r border-[#30363D] text-[#6E7681] select-none w-[1%] font-mono text-xs ${ann ? '' : 'border-b border-[#30363D]'}`}
+                    rowSpan={1}
                   >
-                    {ln}
-                  </SyntaxHighlighter>
-                </td>
-                <td className="w-2/5 pl-4 py-0 text-xs text-[#58A6FF]">
-                  {ann && (
-                    <div className="bg-[#1F2937]/80 p-2 rounded border-l-2 border-[#388BFD] shadow-sm">
-                      {ann}
-                    </div>
-                  )}
-                </td>
-              </tr>
+                    {n}
+                  </td>
+                  <td 
+                    className={`py-0.5 px-4 font-mono text-sm whitespace-pre ${ann ? '' : 'border-b border-[#30363D]'}`}
+                    colSpan={ann ? 1 : 2}
+                  >
+                    <SyntaxHighlighter
+                      language={language}
+                      style={vscDarkPlus}
+                      customStyle={{
+                        margin: 0,
+                        padding: 0,
+                        background: 'transparent',
+                        fontSize: 'inherit',
+                        lineHeight: 1.5,
+                      }}
+                      wrapLines
+                    >
+                      {ln}
+                    </SyntaxHighlighter>
+                  </td>
+                  {!ann && <td className="w-2/5 border-b border-[#30363D]"></td>}
+                </tr>
+
+                {ann && (
+                  <tr className="bg-[#1C2F45]/70">
+                    <td className="border-r border-[#30363D]"></td>
+                    <td colSpan={2} className="px-4 py-1 border-b border-[#30363D]">
+                      <div className="text-xs text-[#58A6FF] p-1 bg-[#1F2937]/50 rounded border-l-2 border-[#388BFD]">
+                        {ann}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             );
           })}
         </tbody>

@@ -42,7 +42,7 @@ export default function LoadingIndicator() {
   const currentPhrase = loadingPhrases[phraseIndex];
 
   return (
-    <div className="p-8 flex flex-col items-center justify-center space-y-6">
+    <div className="p-12 flex flex-col items-center justify-center space-y-8">
       {/* Rotating Cube Animation */}
       <div className="scene">
         <div className="cube-wrapper">
@@ -58,11 +58,11 @@ export default function LoadingIndicator() {
       </div>
       
       {/* Text - Updated to cycle */}
-      <div className="space-y-2 text-center">
-        <p className="text-[#E6EDF3] text-lg font-semibold">
+      <div className="space-y-3 text-center">
+        <p className="text-[#E6EDF3] text-2xl font-semibold">
           {currentPhrase.title}
         </p>
-        <p className="text-sm text-[#8B949E]">
+        <p className="text-lg text-[#8B949E]">
           {currentPhrase.subtitle}
         </p>
       </div>
