@@ -24,7 +24,7 @@ import 'reactflow/dist/style.css';
 import { Card } from '@/components/ui/card';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, FileCode } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /* ----------------------------- Types ------------------------------ */
@@ -118,6 +118,23 @@ const prepareCodeLines = (
     getAnnotation: (lineNum: number) =>
       annotations?.find((a) => a.line === lineNum)?.comment ?? null,
   };
+};
+
+// Function to parse imports from code content
+const parseImports = (code: string): string[] => {
+  const imports: Set<string> = new Set();
+  // Corrected Regex: Handle different quotes, optional semicolons, require/import
+  const importRegex = /(?:import(?:.|\n)*?from\s+|(?:require\s*\())(['"`])([.\/\w-]+)\1/g;
+  let match;
+  while ((match = importRegex.exec(code)) !== null) {
+    // Extract module name (index 2), remove relative paths for simplicity
+    const modulePath = match[2]; 
+    const moduleName = modulePath.split('/').pop();
+    if (moduleName) { 
+      imports.add(moduleName);
+    }
+  }
+  return Array.from(imports);
 };
 
 /* ------------------------------------------------------------------ */
@@ -229,7 +246,7 @@ function CodeRenderer({
                     {ln}
                   </SyntaxHighlighter>
                 </td>
-                <td className="w-[30%] pl-4 py-0 text-xs text-[#58A6FF]">
+                <td className="w-2/5 pl-4 py-0 text-xs text-[#58A6FF]">
                   {ann && (
                     <div className="bg-[#1F2937]/80 p-2 rounded border-l-2 border-[#388BFD] shadow-sm">
                       {ann}
@@ -385,12 +402,35 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
 
   // Effect to fit view when selection changes
   useEffect(() => {
-    // Delay fitView call slightly after the transition duration (500ms)
     const timer = setTimeout(() => {
       reactFlowInstance.fitView({ padding: 0.1, duration: 300 });
     }, 550); 
     return () => clearTimeout(timer);
   }, [selectedFile, reactFlowInstance]);
+
+  // Calculate parsed imports at the top level
+  const parsedImportsElement = useMemo(() => {
+    if (selectedFile === null || !allCodeFiles[selectedFile]?.content) {
+      return null;
+    }
+    const imports = parseImports(allCodeFiles[selectedFile].content);
+    if (imports.length > 0) {
+      return (
+        <div className="mt-4 pt-3 border-t border-[#30363D]">
+          <h4 className="text-xs font-semibold text-[#8B949E] uppercase mb-2 flex items-center">
+            <FileCode size={14} className="mr-1.5" />
+            References
+          </h4>
+          <p className="text-xs text-[#8B949E]">
+            This file appears to use code from: {imports.map((imp, i) => (
+              <code key={i} className="text-xs bg-[#2d333b] text-[#79c0ff] px-1 py-0.5 rounded mx-0.5">{imp}</code>
+            ))}{imports.length > 3 ? ', and others.' : '.'}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  }, [selectedFile, allCodeFiles]); // Depend on selection and files
 
   /* ---- 4. Render ------------------------------------------------ */
   return (
@@ -471,6 +511,9 @@ export function App() { return ( <div><Header/><Footer/></div> ); }`,
                   {allCodeFiles[selectedFile].sectionContent && (
                     <div className="prose prose-invert max-w-none mb-6 text-[#C9D1D9] prose-p:text-[#C9D1D9] prose-headings:text-[#E6EDF3] prose-a:text-[#58A6FF] prose-code:text-[#79C0FF] prose-strong:text-[#E6EDF3] text-sm">
                       <ReactMarkdown>{allCodeFiles[selectedFile].sectionContent}</ReactMarkdown>
+                      
+                      {/* Display Parsed Imports (using the pre-calculated element) */}
+                      {parsedImportsElement}
                     </div>
                   )}
                   

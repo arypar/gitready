@@ -7,19 +7,19 @@ import { useState, useEffect } from 'react'; // Import useState and useEffect
 const loadingPhrases = [
   {
     title: "Gitting your repo ready...",
-    subtitle: "Fetching files faster than a git commit!"
+    subtitle: "Fetching files at lightspeed"
   },
   {
-    title: "Gitting the AI warmed up...",
-    subtitle: "It's gitting smarter by the second!"
+    title: "I'm gonna git your API key!",
+    subtitle: "You better watch out"
   },
   {
-    title: "Gitting dependency insights...",
-    subtitle: "Hope this doesn\'t cause merge conflicts... Git it?"
+    title: "Gitting some moneyyyyy",
+    subtitle: "Collecting the bag"
   },
   {
-    title: "Gitting code intel...",
-    subtitle: "Almost ready to show you the code story. Git excited!"
+    title: "Gitting a grip on reality",
+    subtitle: "It be like that sometimes"
   },
   {
     title: "Gitting the final picture...",
