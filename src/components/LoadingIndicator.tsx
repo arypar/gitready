@@ -1,55 +1,76 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import './LoadingIndicator.css'; // Import CSS for the cube animation
+import { useState, useEffect } from 'react'; // Import useState and useEffect
+
+const loadingPhrases = [
+  {
+    title: "Gitting your repo ready...",
+    subtitle: "Fetching files at lightspeed"
+  },
+  {
+    title: "I'm gonna git your API key!",
+    subtitle: "You better watch out"
+  },
+  {
+    title: "Gitting some moneyyyyy",
+    subtitle: "Collecting the bag"
+  },
+  {
+    title: "Gitting a grip on reality",
+    subtitle: "It be like that sometimes"
+  },
+  {
+    title: "Gitting the final picture...",
+    subtitle: "Git ready for a masterpiece!"
+  }
+];
 
 export default function LoadingIndicator() {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+
+  // Cycle through phrases every 3.5 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setPhraseIndex((prevIndex) => (prevIndex + 1) % loadingPhrases.length);
+    }, 3500);
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
+
+  const currentPhrase = loadingPhrases[phraseIndex];
+
   return (
-    <Card className="w-full max-w-md mx-auto bg-[#0D1117]/80 border border-[#30363D] backdrop-blur-md rounded-md">
-      <div className="p-6 flex flex-col items-center justify-center space-y-6">
-        {/* Loading spinner */}
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 border-2 border-transparent border-t-[#388BFD] rounded-full animate-spin" 
-               style={{ animationDuration: '1s' }}></div>
-          <div className="absolute inset-2 border-2 border-transparent border-l-[#388BFD]/60 rounded-full animate-spin" 
-               style={{ animationDuration: '2s', animationDirection: 'reverse' }}></div>
-          
-          {/* Center dot */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2 h-2 bg-[#388BFD] rounded-full"></div>
+    <div className="p-12 flex flex-col items-center justify-center space-y-8">
+      {/* Rotating Cube Animation */}
+      <div className="scene">
+        <div className="cube-wrapper">
+          <div className="cube">
+            <div className="cube-faces cube-face-front"></div>
+            <div className="cube-faces cube-face-back"></div>
+            <div className="cube-faces cube-face-right"></div>
+            <div className="cube-faces cube-face-left"></div>
+            <div className="cube-faces cube-face-top"></div>
+            <div className="cube-faces cube-face-bottom"></div>
           </div>
         </div>
-        
-        {/* Text */}
-        <div className="space-y-2 text-center">
-          <p className="text-[#E6EDF3] text-base font-medium">
-            Analyzing repository
-          </p>
-          <p className="text-xs text-[#8B949E]">
-            Processing code structure and generating documentation
-          </p>
-        </div>
-        
-        {/* Progress bar */}
-        <div className="w-full h-1 bg-[#161B22] rounded-full overflow-hidden">
-          <div className="h-full bg-[#388BFD]/60 rounded-full animate-progress"></div>
-        </div>
-        
-        {/* Animation keyframes */}
-        <style jsx>{`
-          @keyframes progress {
-            0% { width: 0%; }
-            20% { width: 20%; }
-            40% { width: 45%; }
-            60% { width: 65%; }
-            80% { width: 85%; }
-            95% { width: 95%; }
-            100% { width: 98%; }
-          }
-          .animate-progress {
-            animation: progress 20s ease-out forwards;
-          }
-        `}</style>
       </div>
-    </Card>
+      
+      {/* Text - Updated to cycle */}
+      <div className="space-y-3 text-center">
+        <p className="text-[#E6EDF3] text-2xl font-semibold">
+          {currentPhrase.title}
+        </p>
+        <p className="text-lg text-[#8B949E]">
+          {currentPhrase.subtitle}
+        </p>
+      </div>
+      
+      {/* Optional: Add a subtle progress-like element if desired */}
+      {/* <div className="w-full h-1 bg-[#30363D] rounded-full overflow-hidden">
+        <div className="h-full bg-purple-600 animate-pulse rounded-full"></div>
+      </div> */}
+    </div>
   );
 } 

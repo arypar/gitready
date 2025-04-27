@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import UrlForm from '@/components/UrlForm';
+import ChatInputForm from '@/components/chatbox-ui';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import CodeWalkthrough from '@/components/CodeWalkthrough';
-import ThreeBackground from '@/components/background/ThreeBackground';
 import { analyzeRepository, analyzeDocumentation, CodeWalkthroughSection, UrlType } from '@/services/api';
 import { Switch } from '@/components/ui/switch';
+import { CustomSwitch } from '@/components/ui/custom-switch';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 // Demo data for testing purposes
 const DEMO_WALKTHROUGH: CodeWalkthroughSection[] = [
@@ -80,52 +82,101 @@ const DEMO_WALKTHROUGH: CodeWalkthroughSection[] = [
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [walkthrough, setWalkthrough] = useState<CodeWalkthroughSection[]>([]);
+  const [repositorySummary, setRepositorySummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [hasSentFirstQuery, setHasSentFirstQuery] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+  const [analyzedUrl, setAnalyzedUrl] = useState<string | null>(null);
+
+  // When transitioning state or walkthrough changes, manage visibility of content
+  useEffect(() => {
+    if (isTransitioning) {
+      setShowContent(false);
+    } else if (hasSentFirstQuery && walkthrough.length > 0) {
+      // Delay showing content until the transition animation completes
+      const timer = setTimeout(() => {
+        setShowContent(true);
+      }, 200);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning, hasSentFirstQuery, walkthrough]);
 
   const handleSubmit = async (url: string, type: UrlType) => {
     try {
       // If we're already loading, don't submit again
       if (isLoading) return;
       
+      if (!hasSentFirstQuery) {
+        // Start transition animation
+        setIsTransitioning(true);
+        
+        // Wait for animation to complete before changing the state
+        setTimeout(() => {
+          setHasSentFirstQuery(true);
+          setIsTransitioning(false);
+        }, 600);
+      }
+      
       setIsLoading(true);
       setError(null);
+      setRepositorySummary(null);
+      setAnalyzedUrl(url);
       
       // Clear previous walkthrough results before showing new ones
       setWalkthrough([]);
       
-      // If demo mode is enabled, return the demo data after a brief delay
-      if (isDemoMode) {
-        console.log("Demo mode active, showing demo data");
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setWalkthrough(DEMO_WALKTHROUGH);
-        setIsLoading(false);
-        return;
-      } 
-      
       // For real API calls
-      toast.success('Analyzing...', {
+      toast.success('Gitting Ready...', {
         description: `Processing ${type === 'github' ? 'repository' : 'documentation'} at ${url}`,
       });
       
       // Real API call
-      let result: CodeWalkthroughSection[];
+      let resultSections: CodeWalkthroughSection[];
+      let resultSummary: string | null = null;
       
       if (type === 'github') {
-        result = await analyzeRepository(url);
+        // Assume analyzeRepository might return an object with sections and summary
+        const response = await analyzeRepository(url) as any; // Use type assertion
+        // Check if response has sections and summary structure or is just sections array
+        if (response && Array.isArray(response.sections)) {
+          resultSections = response.sections;
+          resultSummary = response.summary || null;
+        } else if (Array.isArray(response)) {
+          // Handle case where only sections are returned (original behavior)
+          resultSections = response;
+        } else {
+          throw new Error("Unexpected API response format");
+        }
       } else {
-        result = await analyzeDocumentation(url);
+        // Documentation analysis will return a friendly message from the API service
+        resultSections = await analyzeDocumentation(url);
+        
+        // Show a toast notification about docs feature being disabled
+        if (resultSections.length === 1 && resultSections[0].title === "Documentation Analysis Unavailable") {
+          toast.warning('Documentation Analysis Disabled', {
+            description: 'The documentation analysis feature has been disabled. Please use GitHub repository analysis instead.',
+          });
+        }
       }
       
-      setWalkthrough(result);
+      setWalkthrough(resultSections);
+      setRepositorySummary(resultSummary);
       
-      toast.success('Success', {
-        description: 'Walkthrough generated successfully',
+      toast.success('Ready!', {
+        description: 'Walkthrough generated successfully. Git ready!',
       });
     } catch (err) {
       console.error('Error analyzing URL:', err);
-      const errorMsg = err instanceof Error ? err.message : 'An unknown error occurred';
+      let errorMsg = err instanceof Error ? err.message : 'An unknown error occurred';
+      
+      // Check if error is about repository size
+      if (err instanceof Error && 
+          err.message.includes('Repository must have at least 5 files')) {
+        errorMsg = 'Repository must have at least 5 files for meaningful analysis';
+      }
+      
       setError(errorMsg);
       
       toast.error('Error', {
@@ -136,65 +187,179 @@ export default function Home() {
     }
   };
 
+  // Helper to extract repo name from URL
+  const getRepoNameFromUrl = (url: string | null): string => {
+    if (!url) return 'Repository';
+    try {
+      const path = new URL(url).pathname.split('/');
+      // Handle URLs like github.com/org/repo or github.com/org/repo/...
+      if (path.length >= 3 && path[1] && path[2]) {
+        return `${path[1]} / ${path[2]}`;
+      }
+    } catch (e) {
+      // Fallback if URL parsing fails
+    }
+    return url.split('/').slice(-2).join('/') || 'Repository'; // Simple fallback
+  };
+
   return (
-    <>
-      <ThreeBackground />
+    <div className="flex flex-col min-h-screen bg-[#0D1117] text-[#C9D1D9] font-sans overflow-hidden">
+      {/* Background overlay for React Flow */}
+      <div className="fixed inset-0 z-[-1] bg-[#0D1117] opacity-90"></div>
       
-      <main className="relative min-h-screen py-16 px-4 sm:px-6 lg:px-8 z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col items-center justify-center min-h-[20vh] mb-16">
-            <h1 className="text-4xl md:text-5xl font-semibold text-[#E6EDF3] tracking-tight leading-tight text-center">
-              Onboard.me
-            </h1>
-            <p className="mt-4 text-base md:text-lg text-[#8B949E] max-w-2xl text-center font-normal">
-              Quickly understand any codebase with AI-powered analysis and documentation
-            </p>
-          </div>
-          
-          {/* Demo Mode Toggle */}
-          <div className="absolute top-6 right-6 flex items-center space-x-2">
-            <span className="text-xs text-[#8B949E]">Demo Mode</span>
-            <Switch 
-              checked={isDemoMode} 
-              onCheckedChange={setIsDemoMode} 
-              className="data-[state=checked]:bg-[#388BFD]" 
-            />
-          </div>
-          
-          <div className="relative max-w-2xl mx-auto mb-20">
-            {/* Subtle glow behind the input */}
-            <div className="absolute -inset-10 bg-[#388BFD]/5 blur-3xl rounded-full opacity-30 -z-10"></div>
-            <UrlForm onSubmit={handleSubmit} isLoading={isLoading} />
+      <AnimatePresence>
+        {/* Initial centered content - Animates out on first message */}
+        {!hasSentFirstQuery && !isTransitioning && (
+          <motion.div 
+            className="flex flex-col justify-center items-center absolute inset-0 z-10 bg-[#0D1117]"
+            initial={{ opacity: 1 }}
+            exit={{ 
+              opacity: 0,
+              transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+            }}
+          >
+            <motion.div 
+              className="mb-6 mt-[-80px]"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <motion.div 
+                className="flex items-center justify-center gap-2"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                layoutId="app-logo"
+              >
+                <h1 className="text-4xl font-extrabold tracking-tight">
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <span className="text-[#E6EDF3] font-extrabold tracking-tight">Git</span>
+                      <span className="text-purple-400 font-extrabold tracking-tight">Ready</span>
+                    </div>
+                    <motion.div 
+                      whileHover={{ rotate: 10 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <span className="text-4xl">🐈‍⬛</span>
+                    </motion.div>
+                  </div>
+                </h1>
+              </motion.div>
+              
+              <motion.p 
+                className="text-xl text-[#8B949E] text-center mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                Understand any codebase with AI
+              </motion.p>
+            </motion.div>
             
-            {isDemoMode && (
-              <div className="mt-2 text-center">
-                <span className="text-xs px-2 py-1 bg-[#388BFD]/10 text-[#388BFD] rounded-full">
-                  Demo Mode Active
-                </span>
-              </div>
+            {/* Chat input for initial screen */}
+            <div className="w-full max-w-xl px-4">
+              <ChatInputForm onSubmit={handleSubmit} isLoading={isLoading} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Main content area (appears after first query) */}
+      <div className="flex flex-col flex-grow p-4 md:p-6 space-y-4">
+        {/* Top section: Logo and Repo Name (No Input Form) */}
+        {(hasSentFirstQuery || isTransitioning) && (
+          <motion.div 
+            className="flex flex-col items-center w-full mb-4 space-y-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Logo */} 
+            <motion.div layoutId="app-logo">
+              <h1 className="text-2xl font-extrabold tracking-tight">
+                <div className="flex items-center gap-2">
+                  <div>
+                    <span className="text-[#E6EDF3] font-extrabold tracking-tight">Git</span>
+                    <span className="text-purple-400 font-extrabold tracking-tight">Ready</span>
+                  </div>
+                  <motion.div 
+                    whileHover={{ rotate: 10 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <span className="text-3xl">🐈‍⬛</span>
+                  </motion.div>
+                </div>
+              </h1>
+            </motion.div>
+            
+            {/* Display Repo Name Link Below Logo */}
+            <a 
+              href={analyzedUrl || '#'} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block px-4 py-1 bg-[#21262D] border border-[#30363D] rounded-lg shadow-sm hover:bg-[#30363D] transition-colors duration-200"
+            >
+              <h2 className="text-lg font-medium text-[#A0AEC0] hover:text-[#E6EDF3]">
+                {getRepoNameFromUrl(analyzedUrl)}
+              </h2>
+            </a>
+          </motion.div>
+        )}
+
+        {/* Bottom section: Loading/Error/Walkthrough */}
+        <div className="flex-grow flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            {isLoading && (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+              >
+                <LoadingIndicator />
+              </motion.div>
             )}
-          </div>
-          
-          {error && (
-            <div className="max-w-2xl mx-auto mt-8 p-4 bg-[#F85149]/10 text-[#F85149] rounded-md border border-[#F85149]/30">
-              <p className="font-medium">Error</p>
-              <p className="text-sm mt-1">{error}</p>
-            </div>
-          )}
-          
-          {isLoading && (
-            <div className="mt-16">
-              <LoadingIndicator />
-            </div>
-          )}
-          
-          {!isLoading && walkthrough.length > 0 && (
-            <div className="mt-16">
-              <CodeWalkthrough sections={walkthrough} />
-            </div>
-          )}
+            {!isLoading && error && (
+              <motion.div 
+                key="error"
+                className="text-center text-red-400 bg-red-900/30 p-4 rounded-lg border border-red-600/50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <p className="font-medium">Error:</p>
+                <p>{error}</p>
+              </motion.div>
+            )}
+            {!isLoading && !error && walkthrough.length > 0 && showContent && (
+              <motion.div 
+                key="walkthrough"
+                className="w-full h-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <CodeWalkthrough sections={walkthrough} repositorySummary={repositorySummary} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </main>
-    </>
+
+        {/* Search Another Repo Button */}
+        {!isLoading && walkthrough.length > 0 && showContent && (
+          <div className="flex justify-center mt-6 pb-4">
+            <Button
+              onClick={() => window.location.reload()}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-colors duration-200"
+            >
+              Search Another Repository
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

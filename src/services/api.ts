@@ -24,16 +24,26 @@ export async function analyzeRepository(url: string): Promise<CodeWalkthroughSec
     return response.data;
   } catch (error) {
     console.error('Error analyzing repository:', error);
+    if (axios.isAxiosError(error) && error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
     throw error;
   }
 }
 
 export async function analyzeDocumentation(url: string): Promise<CodeWalkthroughSection[]> {
-  try {
-    const response = await axios.post(`${baseUrl}/api/analyze/docs`, { url });
-    return response.data;
-  } catch (error) {
-    console.error('Error analyzing documentation:', error);
-    throw error;
-  }
+  // Documentation analysis feature has been removed
+  // Return an explanatory message instead
+  console.warn('Documentation analysis feature has been disabled');
+  
+  const demoSection: CodeWalkthroughSection = {
+    title: "Documentation Analysis Unavailable",
+    content: "The documentation analysis feature has been disabled in this version. Please use GitHub repository analysis instead.",
+    code: undefined
+  };
+  
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return [demoSection];
 } 
