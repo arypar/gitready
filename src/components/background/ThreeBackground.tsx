@@ -8,7 +8,7 @@ import { random } from 'maath';
 
 function Stars({ count = 3000, color = "#4A88B3", size = 0.01, opacity = 0.4 }) {
   const ref = useRef<THREE.Points>(null!);
-  const sphere = random.inSphere(new Float32Array(count * 3), { radius: 1.5 });
+  const sphere = random.inSphere(new Float32Array(count * 3), { radius: 1.5 }) as Float32Array;
 
   useFrame((state, delta) => {
     ref.current.rotation.x -= delta / 20;
